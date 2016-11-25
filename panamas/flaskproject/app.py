@@ -37,7 +37,7 @@ def data_count(type):
 
 @app.route("/neo")
 def connect_neo4j():
-    driver = GraphDatabase.driver("bolt://localhost", auth=basic_auth("neo4j", "7_juliDA"))
+    driver = GraphDatabase.driver("bolt://localhost", auth=basic_auth("neo4j", "neo"))
     session = driver.session()
     result = session.run("match (n:Intermediary) return count(n) as nombre")
     session.close()
