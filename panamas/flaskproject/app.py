@@ -46,6 +46,55 @@ def connect_neo4j():
         res = rec["nombre"]
     return str(res)
 
-    
+def count_intermediaries(driver):
+    session = driver.session()
+    result = session.run("match (n:Intermediary) return count(n) as nombre")
+    session.close()
+    res = 0
+    for rec in result:
+        res = rec["nombre"]
+    return res
+
+def count_addresses(driver):
+    session = driver.session()
+    result = session.run("match (n:Address) return count(n) as nombre")
+    session.close()
+    res = 0
+    for rec in result:
+        res = rec["nombre"]
+    return res
+
+def count_entities(driver):
+    session = driver.session()
+    result = session.run("match (n:Entity) return count(n) as nombre")
+    session.close()
+    res = 0
+    for rec in result:
+        res = rec["nombre"]
+    return res
+
+def count_officers(driver):
+    session = driver.session()
+    result = session.run("match (n:Officer) return count(n) as nombre")
+    session.close()
+    res = 0
+    for rec in result:
+        res = rec["nombre"]
+    return res
+
+@app.route("/neo_graph")
+def neo_graph():
+    driver = GraphDatabase.driver("bolt://localhost", auth=basic_auth("neo4j", "neo"))
+    nb_intermediaries = count_intermediaries(driver)
+    nb_addresses = count_addresses(driver)
+    nb_entities = count_entities(driver)
+    nb_officers = count_officers(driver)
+    data ={
+        "Addresses": nb_addresses,
+        "Entities": nb_entities,
+        "Intermediaries": nb_intermediaries,
+        "Officers": nb_officers}
+    return render_template("panama-visu.html", data = data)
+
 if __name__ == "__main__" :
     app.run()
