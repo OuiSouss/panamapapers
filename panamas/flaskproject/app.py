@@ -1,4 +1,4 @@
-from flask import Flask, render_template, json, url_for
+from flask import Flask, render_template, json, url_for, request
 from neo4j.v1 import GraphDatabase, basic_auth
 
 app = Flask(__name__)
@@ -9,6 +9,11 @@ def index():
 
 @app.route("/hello/<name>")
 def hello(name):
+    return "hello " + name
+
+@app.route("/hello2")
+def hello2():
+    name = request.args.get('name', 's')
     return "hello " + name
 
 @app.route ("/histo")

@@ -1,13 +1,11 @@
-<html>
+{% extends "layout.html" %}
+{% block title %} Index {% endblock %}
 
-   <head>
-   </head>
-   
-   <body>
+{% block body %} 
 	<p><a href="{{ url_for('histo') }}">Histogramme en static</a></p>
 	<p><a href="{{ url_for('temp') }}">Histogramme en templating</a></p>
 	<p><a href="{{ url_for('connect_neo4j') }}">Une première connexion avec neo4j</a></p>
 	<p><a href="{{ url_for('neo_graph') }}">Histogramme avec connexion à neo4j</a></p>
-   </body>
+{% endblock %}
    
 </html>
