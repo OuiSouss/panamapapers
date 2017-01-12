@@ -1,4 +1,4 @@
-from flask import Flask, render_template, json
+from flask import Flask, render_template, json, url_for
 from neo4j.v1 import GraphDatabase, basic_auth
 
 app = Flask(__name__)
@@ -24,7 +24,7 @@ def data():
 def temp():
     f = open("static/data.json")
     data = json.load(f)
-    return render_template("panama-visu.html", data = data)
+    return render_template("panama-visu.html", data=data)
 
 @app.route("/data/count/<type>")
 def data_count(type):
