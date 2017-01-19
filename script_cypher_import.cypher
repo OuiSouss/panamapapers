@@ -1,8 +1,3 @@
-create constraint on (o:Intermediary) assert o.node_id is unique;
-create constraint on (o:Address) assert o.node_id is unique;
-create constraint on (o:Entity) assert o.node_id is unique;
-create constraint on (o:Officer) assert o.node_id is unique;
-
 //create Intermediairies
 
 using periodic commit
@@ -39,3 +34,7 @@ create (:Officer{name:csv.name, icij_valid:csv.icij_valid,valid_until:csv.valid_
 
 
 
+create constraint on (o:Intermediary) assert o.node_id is unique;
+create constraint on (o:Address) assert o.node_id is unique;
+create constraint on (o:Entity) assert o.node_id is unique;
+create constraint on (o:Officer) assert o.node_id is unique;
