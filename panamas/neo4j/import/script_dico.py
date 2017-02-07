@@ -212,7 +212,7 @@ with open("all_edges.csv", "r+") as edges_reader:
             row_header = row
             continue
         else :
-            name_type_act = row[1]
+            name_type_act = row[1].lower()
             for key,vals in dict_type.items():
                 if name_type_act in vals:
                     new_row1_change = key
