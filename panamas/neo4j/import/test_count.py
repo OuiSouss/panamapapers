@@ -1,6 +1,7 @@
-#!/usr/bin/python
+from neo4j.v1 import GraphDatabase, basic_auth
 
-import csv
+driver = GraphDatabase.driver("bolt://localhost", auth=basic_auth("neo4j","neo"))
+session = driver.session()
 
 dict_type ={
     'unknown':[''],
@@ -177,59 +178,16 @@ dict_type ={
     'vice president and secretary':['vice president / sec.','vice president / secretary','vice president/secretary'],
     'vice president and treasurer and secretary':['vice president / sec. / trea','vice president / treas / sec'],
     'vice president and treasurer':['vice president / treasurer','vp / treasurer'],
-    'vice president-finance':['vice president-finance'],
+    'vice president finance':['vice president-finance'],
     'vice chairman':['vice-chairman'],
     'vice president and treasurer and assistant secretary':['vp / treas. asst sec'],
 }
 
-
-"""
-
-s = "vice president"
-k = "vice president / secretary"
-#print dict_type.keys()
-#print dict_type.values()
-if s in dict_type.keys():
-    for i in dict_type[s]:
-        print i
-for key,val in dict_type.items():
-    if k in val:
-        print key
-"""
-
-
-global row_header
-global name_type_act
-global new_row1_change
-global liste
-
-liste = []
-op_file = []
-
-with open("all_edges.csv", "r+") as edges_reader:
-    reader = csv.reader(edges_reader, delimiter=',', lineterminator='\n')
-    for row in reader:
-        if reader.line_num == 1:
-            row_header = row
-            continue
-        else :
-            name_type_act = row[1].lower()
-            for key,vals in dict_type.items():
-                if name_type_act in vals:
-                    new_row1_change = key
-            row[1] = new_row1_change.replace(" ", "_")
-            
-            outfilename = "edges_{}.csv".format(row[1])
-            with open(outfilename, "a") as outfile:
-                op_file.append(outfile)
-                writer = csv.writer(outfile, delimiter=',', lineterminator='\n')
-                if not row[1] in liste:
-                    liste.append(row[1])
-                    writer.writerow(row_header)
-                writer.writerow(row)
-for l in op_file:
-    l.close()
-    
-edges_reader.close()
-
-print (len(dict_type))
+for k in dict_type.keys():
+    rel = k.replace(" ","_")
+    commande = "MATCH p=()-[r:{}]->() return count(p) as c".format(rel)
+    print (commande)
+    result = session.run(commande)
+for r in result:
+    print("%s"%r[c])
+session.close()
