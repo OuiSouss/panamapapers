@@ -177,7 +177,7 @@ dict_type ={
     'vice president and secretary':['vice president / sec.','vice president / secretary','vice president/secretary'],
     'vice president and treasurer and secretary':['vice president / sec. / trea','vice president / treas / sec'],
     'vice president and treasurer':['vice president / treasurer','vp / treasurer'],
-    'vice president-finance':['vice president-finance'],
+    'vice president finance':['vice president-finance'],
     'vice chairman':['vice-chairman'],
     'vice president and treasurer and assistant secretary':['vp / treas. asst sec'],
 }
