@@ -1,0 +1,53 @@
+A la racine du projet:
+
+- ReadMe.txt : je te conseille de le lire quand même car y a certaine chose qui pourrait d'aider pour confirgurer flask pour faire fonctionner les visualisations sur chrome.
+
+- script_cypher_import.cypher : permet d'importer les sommets dans neo4j 
+
+	pour le lancer : - de la racine du projet :
+		panamas/neo4j/bin/neo4j-shell -file script_cypher_import.cypher
+
+	Je ne me rappele plus par contre si tu dois avoir neo4j de lancer ou pas avant de lancer cette ligne de commande à vérifier.
+
+- pour_dico.txt : correspond au dictionnaire utiliser dans les script python. je pense que l'on pourrait le transformer en json et l'importer dans les scripts plus facilement en tant que json.
+
+Dans panamas:
+
+	- neo4j : correspond à tout le système pour neo4j 
+	- flaskprojet : framework que l'on utilise pour créer des visualisation sur navigateur 
+
+	- script_countries.py :  script python qui nous permettra de creer les noeuds pour les pays.
+
+Dans neo4j: 
+	- bin : tous les scripts de neo4j 
+	- pour lancer neo4j : 
+		bin/neo4j start
+		ou
+		bin/neo4j console : pour le lancer en mode console
+	- pour éteindre neo4j:
+		bin/neo4j stop
+	
+	-import : dossier où il faut mettre tous les fichiers qui sont a importé pour la base de données. Plus des scripts python pour créer les petits fichiers de arrêtes.
+
+Dans import:
+	- script_dico.py : permet de créer les petits fichiers d'arrêtes avec le même type de relation.
+	- import.py : importe dans neo4j les arêtes de tous les petits fichiers formater edges_*.csv.
+	- test_count.py : petit script qui permet de récupérer le nombre d'arrêtes qui ont été créées après le script import.py pour check si les arrêtes sont au même nombre que all_edges.csv faire :
+
+	ls all_edges.csv | wc -l et lancer test_count.py et comparer. Enlever au résultat de all_edges 1 car ça compte le header.
+
+Dans flask:
+	- Regarde pour le coup le ReadMe je crois que j'ai détaillé dedans.
+
+Voilà.
+
+Ordre des scripts à lancer:
+	activer neo4j : bin/neo4j start
+	script_cypher_import.cypher
+	script_dico.py
+	import.py
+	test_count.py
+	
+	En plus si tu veux mais faut que tout l'environement pour flask soit bien configurer tu peux lancer dans flaskprojec: app.py.
+
+Là sur cette partie tu risques de te trouver face à des problèmes demande moi.
