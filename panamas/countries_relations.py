@@ -34,10 +34,8 @@ countries = ['South Africa', 'Liechtenstein', 'Monaco', 'Belgium', 'Lebanon', 'S
 # 				print("From: " + i + " To: " + j + ": None")
 # session.close()
 
-cpt =0
+
 for i in countries:
-	cpt += 1
-	print(cpt)
 	print(i)
 	index_i = countries.index(i)
 	for x in range (index_i+1, len(countries)):
