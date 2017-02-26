@@ -13,10 +13,15 @@ wget https://neo4j.com/artifact.php?name=neo4j-community-3.0.7-unix.tar.gz -O ne
 
 #installation de neo4j
 tar -xf neo4j.tar.gz
-mv neo4j-community-3.0.7 neo4j
+mv neo4j-community-3.0.7/* neo4j #add '/*' because before you just moved the folder
+rm -r neo4j-community-3.0.7 #remove empty folder
 
 #dézipper data
 unzip -j data-csv.zip -d neo4j/import
+
+#delete all the zip files
+rm data-csv.zip
+rm neo4j.tar.gz
 
 #Partie pour l'utilisation de flask
 #si vous êtes sur une machine du cremi python 2.7 , pip et virtualenv sont déjà installé
