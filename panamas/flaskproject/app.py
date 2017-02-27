@@ -3,6 +3,11 @@ from neo4j.v1 import GraphDatabase, basic_auth
 
 app = Flask(__name__)
 
+global driver,session
+
+driver = GraphDatabase.driver("bolt://localhost", auth=basic_auth("neo4j", "neo"))
+session = driver.session()
+
 @app.route("/")
 def index():
     return render_template("index.html")
@@ -42,46 +47,15 @@ def data_count(type):
 
 @app.route("/neo")
 def connect_neo4j():
-    driver = GraphDatabase.driver("bolt://localhost", auth=basic_auth("neo4j", "neo"))
-    session = driver.session()
     result = session.run("match (n:Intermediary) return count(n) as nombre")
-    session.close()
     res = 0
     for rec in result:
         res = rec["nombre"]
     return str(res)
 
-def count_intermediaries(driver):
-    session = driver.session()
-    result = session.run("match (n:Intermediary) return count(n) as nombre")
-    session.close()
-    res = 0
-    for rec in result:
-        res = rec["nombre"]
-    return res
 
-def count_addresses(driver):
-    session = driver.session()
-    result = session.run("match (n:Address) return count(n) as nombre")
-    session.close()
-    res = 0
-    for rec in result:
-        res = rec["nombre"]
-    return res
-
-def count_entities(driver):
-    session = driver.session()
-    result = session.run("match (n:Entity) return count(n) as nombre")
-    session.close()
-    res = 0
-    for rec in result:
-        res = rec["nombre"]
-    return res
-
-def count_officers(driver):
-    session = driver.session()
-    result = session.run("match (n:Officer) return count(n) as nombre")
-    session.close()
+def count_type(driver, n_type):
+    result = session.run("match (n:%s) return count(n) as nombre"%n_type)
     res = 0
     for rec in result:
         res = rec["nombre"]
@@ -89,11 +63,11 @@ def count_officers(driver):
 
 @app.route("/neo_graph")
 def neo_graph():
-    driver = GraphDatabase.driver("bolt://localhost", auth=basic_auth("neo4j", "neo"))
-    nb_intermediaries = count_intermediaries(driver)
-    nb_addresses = count_addresses(driver)
-    nb_entities = count_entities(driver)
-    nb_officers = count_officers(driver)
+
+    nb_intermediaries = count_type(driver, "Intermediary")
+    nb_addresses = count_type(driver, "Address")
+    nb_entities = count_type(driver, "Entity")
+    nb_officers = count_type(driver, "Officer")
     data ={
         "Addresses": nb_addresses,
         "Entities": nb_entities,
@@ -101,5 +75,6 @@ def neo_graph():
         "Officers": nb_officers}
     return render_template("panama-visu.html", data = data)
 
+session.close()
 if __name__ == "__main__" :
     app.run()
