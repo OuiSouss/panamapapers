@@ -3,6 +3,11 @@ from neo4j.v1 import GraphDatabase, basic_auth
 
 app = Flask(__name__)
 
+global driver,session
+
+driver = GraphDatabase.driver("bolt://localhost", auth=basic_auth("neo4j", "neo"))
+session = driver.session()
+
 @app.route("/")
 def index():
     return render_template("index.html")
@@ -42,46 +47,15 @@ def data_count(type):
 
 @app.route("/neo")
 def connect_neo4j():
-    driver = GraphDatabase.driver("bolt://localhost", auth=basic_auth("neo4j", "neo"))
-    session = driver.session()
     result = session.run("match (n:Intermediary) return count(n) as nombre")
-    session.close()
     res = 0
     for rec in result:
         res = rec["nombre"]
     return str(res)
 
-def count_intermediaries(driver):
-    session = driver.session()
-    result = session.run("match (n:Intermediary) return count(n) as nombre")
-    session.close()
-    res = 0
-    for rec in result:
-        res = rec["nombre"]
-    return res
 
-def count_addresses(driver):
-    session = driver.session()
-    result = session.run("match (n:Address) return count(n) as nombre")
-    session.close()
-    res = 0
-    for rec in result:
-        res = rec["nombre"]
-    return res
-
-def count_entities(driver):
-    session = driver.session()
-    result = session.run("match (n:Entity) return count(n) as nombre")
-    session.close()
-    res = 0
-    for rec in result:
-        res = rec["nombre"]
-    return res
-
-def count_officers(driver):
-    session = driver.session()
-    result = session.run("match (n:Officer) return count(n) as nombre")
-    session.close()
+def count_type(driver, n_type):
+    result = session.run("match (n:%s) return count(n) as nombre"%n_type)
     res = 0
     for rec in result:
         res = rec["nombre"]
@@ -89,11 +63,11 @@ def count_officers(driver):
 
 @app.route("/neo_graph")
 def neo_graph():
-    driver = GraphDatabase.driver("bolt://localhost", auth=basic_auth("neo4j", "neo"))
-    nb_intermediaries = count_intermediaries(driver)
-    nb_addresses = count_addresses(driver)
-    nb_entities = count_entities(driver)
-    nb_officers = count_officers(driver)
+
+    nb_intermediaries = count_type(driver, "Intermediary")
+    nb_addresses = count_type(driver, "Address")
+    nb_entities = count_type(driver, "Entity")
+    nb_officers = count_type(driver, "Officer")
     data ={
         "Addresses": nb_addresses,
         "Entities": nb_entities,
@@ -101,28 +75,69 @@ def neo_graph():
         "Officers": nb_officers}
     return render_template("panama-visu.html", data = data)
 
-@app.route("/histo_countries")
-def get_countries_data():
+# @app.route("/histo_countries")
+# def get_countries_data():
+#     driver = GraphDatabase.driver("bolt://localhost", auth=basic_auth("neo4j", "neo"))
+#     session = driver.session()
+#
+#     countries_array = ['South Africa', 'Liechtenstein', 'Monaco', 'Belgium', 'Lebanon', 'Switzerland', 'Malaysia', 'Spain', 'United Kingdom', 'Jersey', 'France', 'Luxembourg', 'Taiwan', 'Estonia', 'Mexico', 'Argentina', 'Guernsey', 'United States', 'Venezuela', 'Hong Kong', 'Panama', 'Saudi Arabia', 'Germany', 'Kuwait', 'Poland', 'Brazil', 'Turkey', 'Egypt', 'Canada', 'Portugal', 'Russia', 'Isle of Man', 'Malta', 'Hungary', 'Israel', 'Greece', 'Philippines', 'Italy', 'China', 'Gibraltar', 'Bahamas', 'Honduras', 'Australia', 'Austria', 'Sweden', 'Slovenia', 'Uruguay', 'Thailand', 'Ecuador', 'Colombia', 'United Arab Emirates', 'Peru', 'Czech Republic']
+#
+#     data ={}
+#     for country1 in countries_array:
+#         s = 0
+#         i = countries_array.index(country1)
+#         for country2 in countries_array:
+#             result = session.run("MATCH (n:Country)-[r]->(m:Country) WHERE (n.country = '" + country1 + "' and m.country = '" + country2 + "') RETURN r.cpt_interaction as inter")
+#             for r in result:
+#                 s += r["inter"]
+#         print i
+#         if country1 == 'United Kingdom':
+#             country1 = 'UK'
+#         data[country1] = s
+#     session.close()
+#     return render_template("countries-visu.html", data = data)
+
+def fact(n):
+    if n == 0:
+        return 1
+    else:
+        return n * fact(n-1)
+
+def kparmisn(k,n):
+    return fact(n)/(fact(k)*fact(n-k))
+
+@app.route("/graph_countries")
+def get_countries_data_graph():
     driver = GraphDatabase.driver("bolt://localhost", auth=basic_auth("neo4j", "neo"))
     session = driver.session()
 
     countries_array = ['South Africa', 'Liechtenstein', 'Monaco', 'Belgium', 'Lebanon', 'Switzerland', 'Malaysia', 'Spain', 'United Kingdom', 'Jersey', 'France', 'Luxembourg', 'Taiwan', 'Estonia', 'Mexico', 'Argentina', 'Guernsey', 'United States', 'Venezuela', 'Hong Kong', 'Panama', 'Saudi Arabia', 'Germany', 'Kuwait', 'Poland', 'Brazil', 'Turkey', 'Egypt', 'Canada', 'Portugal', 'Russia', 'Isle of Man', 'Malta', 'Hungary', 'Israel', 'Greece', 'Philippines', 'Italy', 'China', 'Gibraltar', 'Bahamas', 'Honduras', 'Australia', 'Austria', 'Sweden', 'Slovenia', 'Uruguay', 'Thailand', 'Ecuador', 'Colombia', 'United Arab Emirates', 'Peru', 'Czech Republic']
 
-    data ={}
-    for country1 in countries_array:
-        s = 0
-        i = countries_array.index(country1)
-        for country2 in countries_array:
-            result = session.run("MATCH (n:Country)-[r]->(m:Country) WHERE (n.country = '" + country1 + "' and m.country = '" + country2 + "') RETURN r.cpt_interaction as inter")
+    number_of_countries = len(countries_array)
+    data = {}
+    data['nodes'] = [{}] * number_of_countries
+    data['links'] = [{}] * kparmisn(2,number_of_countries)
+
+    x = 0
+
+    for i,country1 in enumerate(countries_array):
+        data['nodes'][i] = {'id': country1}
+        for j in range(i+1,number_of_countries):
+            s = 0
+            country2 = countries_array[j]
+            exist = False
+            result = session.run("MATCH (n:Country)-[r]->(m:Country) WHERE (n.country = '" + country1 + "' and m.country = '" + country2 + "') or (n.country = '" + country2 + "' and m.country = '" + country1 + "') RETURN r.cpt_interaction as inter")
             for r in result:
+                exist = True
                 s += r["inter"]
-        print i
-        if country1 == 'United Kingdom':
-            country1 = 'UK'
-        data[country1] = s
+            data['links'][x] = {'source': country1, 'target': country2, 'value': s}
+            x += 1
+        print(i)
     session.close()
-    return render_template("countries-visu.html", data = data)
+
+    return render_template("graph_countries.html", data = data)
 
 
+session.close()
 if __name__ == "__main__" :
     app.run()
