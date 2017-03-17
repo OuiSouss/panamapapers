@@ -75,27 +75,27 @@ def neo_graph():
         "Officers": nb_officers}
     return render_template("panama-visu.html", data = data)
 
-# @app.route("/histo_countries")
-# def get_countries_data():
-#     driver = GraphDatabase.driver("bolt://localhost", auth=basic_auth("neo4j", "neo"))
-#     session = driver.session()
-#
-#     countries_array = ['South Africa', 'Liechtenstein', 'Monaco', 'Belgium', 'Lebanon', 'Switzerland', 'Malaysia', 'Spain', 'United Kingdom', 'Jersey', 'France', 'Luxembourg', 'Taiwan', 'Estonia', 'Mexico', 'Argentina', 'Guernsey', 'United States', 'Venezuela', 'Hong Kong', 'Panama', 'Saudi Arabia', 'Germany', 'Kuwait', 'Poland', 'Brazil', 'Turkey', 'Egypt', 'Canada', 'Portugal', 'Russia', 'Isle of Man', 'Malta', 'Hungary', 'Israel', 'Greece', 'Philippines', 'Italy', 'China', 'Gibraltar', 'Bahamas', 'Honduras', 'Australia', 'Austria', 'Sweden', 'Slovenia', 'Uruguay', 'Thailand', 'Ecuador', 'Colombia', 'United Arab Emirates', 'Peru', 'Czech Republic']
-#
-#     data ={}
-#     for country1 in countries_array:
-#         s = 0
-#         i = countries_array.index(country1)
-#         for country2 in countries_array:
-#             result = session.run("MATCH (n:Country)-[r]->(m:Country) WHERE (n.country = '" + country1 + "' and m.country = '" + country2 + "') RETURN r.cpt_interaction as inter")
-#             for r in result:
-#                 s += r["inter"]
-#         print i
-#         if country1 == 'United Kingdom':
-#             country1 = 'UK'
-#         data[country1] = s
-#     session.close()
-#     return render_template("countries-visu.html", data = data)
+@app.route("/histo_countries")
+def get_countries_data():
+    driver = GraphDatabase.driver("bolt://localhost", auth=basic_auth("neo4j", "neo"))
+    session = driver.session()
+
+    countries_array = ['South Africa', 'Liechtenstein', 'Monaco', 'Belgium', 'Lebanon', 'Switzerland', 'Malaysia', 'Spain', 'United Kingdom', 'Jersey', 'France', 'Luxembourg', 'Taiwan', 'Estonia', 'Mexico', 'Argentina', 'Guernsey', 'United States', 'Venezuela', 'Hong Kong', 'Panama', 'Saudi Arabia', 'Germany', 'Kuwait', 'Poland', 'Brazil', 'Turkey', 'Egypt', 'Canada', 'Portugal', 'Russia', 'Isle of Man', 'Malta', 'Hungary', 'Israel', 'Greece', 'Philippines', 'Italy', 'China', 'Gibraltar', 'Bahamas', 'Honduras', 'Australia', 'Austria', 'Sweden', 'Slovenia', 'Uruguay', 'Thailand', 'Ecuador', 'Colombia', 'United Arab Emirates', 'Peru', 'Czech Republic']
+
+    data ={}
+    for country1 in countries_array:
+        s = 0
+        i = countries_array.index(country1)
+        for country2 in countries_array:
+            result = session.run("MATCH (n:Country)-[r]->(m:Country) WHERE (n.country = '" + country1 + "' and m.country = '" + country2 + "') RETURN r.cpt_interaction as inter")
+            for r in result:
+                s += r["inter"]
+        print i
+        if country1 == 'United Kingdom':
+            country1 = 'UK'
+        data[country1] = s
+    session.close()
+    return render_template("countries-visu.html", data = data)
 
 def fact(n):
     if n == 0:
