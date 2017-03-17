@@ -13,10 +13,27 @@
 // ce compteur est mis à jour grace à la fonction set
 
 
-match ()-[r]->() where startNode(r) <> endNode(r) and startNode(r):Global and endNode(r):Global and startNode(r).sourceID="Panama Papers" and exists(startNode(r).countries) and exists(endNode(r).countries) and (startNode(r).countries <> endNode(r).countries) and not (startNode(r):Address and endNode(r):Address) with split(startNode(r).countries,";") as node1, split(endNode(r).countries, ";") as node2 
+match (n:Global {sourceID:"Panama Papers"})-[r]->(m:Global) where exists(n.countries) and exists(m.countries) and not (n:Address and m:Address) with split(n.countries,";") as node1, split(m.countries, ";") as node2 
 unwind node1 as nodeD
 unwind node2 as nodeE
-merge (n1:Country {country: node1})
-merge (n2:Country {country: node2})
-merge (ns:Country {country: nodeD})-[i:interaction {cpt_int: 0}]->(ne:Country {country: nodeE}) 
-set i.cpt_int = toInteger(i.cpt_int)+1
+merge (n1:Country3 {country: nodeD})
+merge (n2:Country3 {country: nodeE})
+merge (n1)-[i:interaction {cpt_int: 0}]->(n2) 
+set i.cpt_int = toInt(i.cpt_int)+1
+
+match (n:Country) -[r]->(n:Country) delete r
+
+
+/*
+
+match (n:Global {sourceID:"Panama Papers"})-[r]->(m:Global) where exists(n.countries) and exists(m.countries) and not(n:Address or m:Address) with split(n.countries,";") as node1, split(m.countries, ";") as node2 
+unwind node1 as nodeD
+unwind node2 as nodeE
+merge (n1:Country3 {country: nodeD})
+with n1, nodeD, nodeE, node1, node2
+optional match (n2:Country3 {country: nodeE}) where nodeD<>nodeE
+set n2.country = nodeE
+merge (n:Country {country: nodeE})
+merge (n1)-[i:interaction {cpt_int: 0}]->(n2) 
+set i.cpt_int = toInt(i.cpt_int)+1
+*/
