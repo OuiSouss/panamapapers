@@ -1,13 +1,67 @@
-<!DOCTYPE html>
-<html lang="fr">
-  <head>
-    {% block head %}
-    <title>{% block title %}{% endblock %}</title>
-    {% endblock%}
-  </head>
-    <body>
-      {% block body %}
-      <h1>This heading is defined in the parent.</h1>
-    	{% endblock %}
-    </body>
-</html>
+{% extends "bootstrap/base.html" %}
+
+{% block html_attribs %} lang = "fr"{% endblock %}
+
+{% block title %} Test {% endblock %}
+
+{% import "bootstrap/fixes.html" as fixes %}
+
+{% block head %}
+{{ super() }}
+{% endblock %}
+
+{% block styles %}
+{{super()}}
+<link rel="stylesheet" type="text/css" href="{{url_for('.static', filename='css/test.css')}}">
+{% endblock %}
+
+{% block metas %}
+<meta charset="utf-8">
+{% endblock %}
+
+{% block body %}
+<div class="container-fluid">
+	<div class="row">
+    	<div class="col-sm-3 col-lg-2">
+        	<nav class="navbar navbar-inverse navbar-fixed-side">
+            	<div class="navbar-header">
+      				<a class="navbar-brand" href="{{ url_for('index') }}">Home</a>
+				</div>
+    			<div class="navbar-collapse collapse">
+    				<ul class="nav navbar-nav">
+      		            
+            	                	<li>
+              		                	<a href="{{ url_for('histo') }}" title="En Static ">Histogramme en Static </a>
+            	                	</li>
+            	                	<li>
+              		                	<a href="{{ url_for('histo_temp') }}" title="En Template">Histogramme en Template</a>
+            	                	</li>
+            	                	<li>
+              		                	<a href="{{ url_for('histo_count_neo') }}" title="Avec connexion Neoj">Histogramme Avec connexion Neoj</a>
+            	                	</li>
+          	                
+                                    	<li>
+              		                    	<a href="{{ url_for('graph_countries') }}" title="Graphe des pays">Graphe des pays</a>
+            	                    	</li>
+            	                    	<li>
+              		                    	<a href="{{ url_for('histo_count_countries') }}" title="Histogramme: Aretes sur les pays">Histogramme: Aretes sur les pays</a>
+            	                    	</li>
+                                </ul>
+	            </div>
+	        </nav>
+        </div>
+        <div class="col-sm-9 col-lg-10">
+		{% block content %}
+            <h3>Basic Navbar Example</h3>
+            <p>A navigation bar is a navigation header that is placed at the top of the page.</p>
+		{% endblock %}
+        </div>
+    </div>
+    
+</div>
+        
+{% endblock %}
+   
+{% block scripts %}
+{{super()}}
+{% endblock %}

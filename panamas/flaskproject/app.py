@@ -1,8 +1,38 @@
-from flask import Flask, render_template, json, url_for, request
+# -*- coding: utf-8 -*-
+# Welcome to our L3-projet-techno application about panama papers . This will give you a
+# guided tour around creating our application using Flask-Bootstrap and other package.
+# From Amélie Risi, Chloe Pathé, Lucas Vivas
+#
+# To run this application yourself, please activate virtualennv first in flaskproject folder:
+#   $ . venv/bin/activate
+# Then, install its requirements first:
+#
+#   $ pip install -r sample_app/requirements.txt
+#
+# Then, you can actually run the application.
+#
+#   $ pyton app.py
+#
+# Afterwards, point your browser to http://localhost:5000, then check out the
+# source.
+from flask import Flask, render_template, json, url_for, request, flash, Blueprint, redirect
 from neo4j.v1 import GraphDatabase, basic_auth
+from flask_bootstrap import Bootstrap
+from flask_appconfig import AppConfig
+from flask_debug import Debug
 
-app = Flask(__name__)
 
+frontend = Blueprint("app", __name__)
+def create_app(configfile=None):
+    app = Flask(__name__)
+    AppConfig(app)
+    Bootstrap(app)
+    Debug(app)
+    app.register_blueprint(frontend)
+    app.config["BOOTSTRAP_SERVE_LOCAL"] = True
+    return app
+
+app = create_app()
 global driver,session
 
 driver = GraphDatabase.driver("bolt://localhost", auth=basic_auth("neo4j", "neo"))
@@ -31,7 +61,7 @@ def data():
 
 @app.route("/histo_temp")
 
-def temp():
+def histo_temp():
     f = open("static/data.json")
     data = json.load(f)
     return render_template("panama-visu.html", data=data)
@@ -45,8 +75,8 @@ def data_count(type):
     else:
         return "Type not specify or type doesn't exist in data"
 
-@app.route("/neo")
-def connect_neo4j():
+@app.route("/count_test_neo")
+def count_test_neo():
     result = session.run("match (n:Intermediary) return count(n) as nombre")
     res = 0
     for rec in result:
@@ -61,8 +91,8 @@ def count_type(driver, n_type):
         res = rec["nombre"]
     return res
 
-@app.route("/neo_graph")
-def neo_graph():
+@app.route("/histo_count_neo")
+def histo_count_neo():
 
     nb_intermediaries = count_type(driver, "Intermediary")
     nb_addresses = count_type(driver, "Address")
@@ -75,11 +105,8 @@ def neo_graph():
         "Officers": nb_officers}
     return render_template("panama-visu.html", data = data)
 
-@app.route("/histo_countries")
-def get_countries_data():
-    driver = GraphDatabase.driver("bolt://localhost", auth=basic_auth("neo4j", "neo"))
-    session = driver.session()
-
+@app.route("/histo__count_countries")
+def histo_count_countries():
     countries_array = ['South Africa', 'Liechtenstein', 'Monaco', 'Belgium', 'Lebanon', 'Switzerland', 'Malaysia', 'Spain', 'United Kingdom', 'Jersey', 'France', 'Luxembourg', 'Taiwan', 'Estonia', 'Mexico', 'Argentina', 'Guernsey', 'United States', 'Venezuela', 'Hong Kong', 'Panama', 'Saudi Arabia', 'Germany', 'Kuwait', 'Poland', 'Brazil', 'Turkey', 'Egypt', 'Canada', 'Portugal', 'Russia', 'Isle of Man', 'Malta', 'Hungary', 'Israel', 'Greece', 'Philippines', 'Italy', 'China', 'Gibraltar', 'Bahamas', 'Honduras', 'Australia', 'Austria', 'Sweden', 'Slovenia', 'Uruguay', 'Thailand', 'Ecuador', 'Colombia', 'United Arab Emirates', 'Peru', 'Czech Republic']
 
     data ={}
@@ -87,14 +114,13 @@ def get_countries_data():
         s = 0
         i = countries_array.index(country1)
         for country2 in countries_array:
-            result = session.run("MATCH (n:Country)-[r]->(m:Country) WHERE (n.country = '" + country1 + "' and m.country = '" + country2 + "') RETURN r.cpt_interaction as inter")
+            result = session.run("MATCH (n:Country3)-[r]->(m:Country3) WHERE (n.country = '" + country1 + "' and m.country = '" + country2 + "') RETURN r.cpt_int as inter")
             for r in result:
                 s += r["inter"]
         print i
         if country1 == 'United Kingdom':
             country1 = 'UK'
         data[country1] = s
-    session.close()
     return render_template("countries-visu.html", data = data)
 
 def fact(n):
@@ -107,13 +133,11 @@ def kparmisn(k,n):
     return fact(n)/(fact(k)*fact(n-k))
 
 @app.route("/graph_countries")
-def get_countries_data_graph():
-    driver = GraphDatabase.driver("bolt://localhost", auth=basic_auth("neo4j", "neo"))
-    session = driver.session()
-
+def graph_countries():
     countries_array = ['South Africa', 'Liechtenstein', 'Monaco', 'Belgium', 'Lebanon', 'Switzerland', 'Malaysia', 'Spain', 'United Kingdom', 'Jersey', 'France', 'Luxembourg', 'Taiwan', 'Estonia', 'Mexico', 'Argentina', 'Guernsey', 'United States', 'Venezuela', 'Hong Kong', 'Panama', 'Saudi Arabia', 'Germany', 'Kuwait', 'Poland', 'Brazil', 'Turkey', 'Egypt', 'Canada', 'Portugal', 'Russia', 'Isle of Man', 'Malta', 'Hungary', 'Israel', 'Greece', 'Philippines', 'Italy', 'China', 'Gibraltar', 'Bahamas', 'Honduras', 'Australia', 'Austria', 'Sweden', 'Slovenia', 'Uruguay', 'Thailand', 'Ecuador', 'Colombia', 'United Arab Emirates', 'Peru', 'Czech Republic']
 
     number_of_countries = len(countries_array)
+    print(number_of_countries)
     data = {}
     data['nodes'] = [{}] * number_of_countries
     data['links'] = [{}] * kparmisn(2,number_of_countries)
@@ -126,18 +150,17 @@ def get_countries_data_graph():
             s = 0
             country2 = countries_array[j]
             exist = False
-            result = session.run("MATCH (n:Country)-[r]->(m:Country) WHERE (n.country = '" + country1 + "' and m.country = '" + country2 + "') or (n.country = '" + country2 + "' and m.country = '" + country1 + "') RETURN r.cpt_interaction as inter")
+            result = session.run("MATCH (n:Country3)-[r]->(m:Country3) WHERE (n.country = '" + country1 + "' and m.country = '" + country2 + "') or (n.country = '" + country2 + "' and m.country = '" + country1 + "') RETURN r.cpt_int as inter")
             for r in result:
                 exist = True
                 s += r["inter"]
             data['links'][x] = {'source': country1, 'target': country2, 'value': s}
             x += 1
         print(i)
-    session.close()
 
     return render_template("graph_countries.html", data = data)
 
 
 session.close()
 if __name__ == "__main__" :
-    app.run()
+    app.run(debug=True)

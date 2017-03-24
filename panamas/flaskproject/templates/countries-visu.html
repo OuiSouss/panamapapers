@@ -1,11 +1,14 @@
-<!DOCTYPE html>
-<html lang="fr">
 {% extends "layout.html" %}
+
+{% block title %} Histogramme de visualisation {% endblock %}
 {% block head %}
+{{super()}}
     <script src="https://d3js.org/d3.v3.min.js"> </script>
 {% endblock %}
-{% block body %}
-    <script>
+
+{% block content %}
+  
+<script >
     var json = {{ data|tojson }};
     var values = Object.values(json)
     var keys = Object.keys(json)
@@ -21,12 +24,12 @@
     var bars = canvas.selectAll("rect").data(values).enter().append("g").attr("transform",function(v,i){return "translate("+xScale(keys[i])+","+(480-heightScale(v))+")"});
     bars.append("rect").attr("height", function(i){return heightScale(i)}).attr("width",xScale.rangeBand())
     .attr("fill", function(i){return colorScale(10000000)});
-    bars.append("text").text(function(d,i){return d}).attr("z",1).attr("y",15).attr("opacity",0.2);
-    bars.on("mouseover", function(d){d3.select(this).select("rect").attr("fill","red");d3.select(this).select("text").attr("opacity",1.0)})
-    .on("mouseout", function(d){d3.select(this).select("rect").attr("fill","blue");d3.select(this).select("text").attr("opacity",0.2)})
-    .on("click", function(d){alert(d)})
-    canvas.append("g").attr("transform","translate(70,0)").call(axis)
-    canvas.append("g").attr("transform","translate(0,480)").call(labels)
+     bars.append("text").text(function(d,i){return d}).attr("z",1).attr("y",15).attr("opacity",0.2);
+     bars.on("mouseover", function(d){d3.select(this).select("rect").attr("fill","red");d3.select(this).select("text").attr("opacity",1.0)})
+     .on("mouseout", function(d){d3.select(this).select("rect").attr("fill","blue");d3.select(this).select("text").attr("opacity",0.2)})
+     .on("click", function(d){alert(d)})
+     canvas.append("g").attr("transform","translate(70,0)").call(axis)
+     canvas.append("g").attr("transform","translate(0,480)").call(labels)
     </script>
 {% endblock %}
-</html>
+
