@@ -15,7 +15,7 @@
 #
 # Afterwards, point your browser to http://localhost:5000, then check out the
 # source.
-from flask import Flask, render_template, json, url_for, request, flash, Blueprint, redirect
+from flask import Flask, render_template, json, url_for, request, flash, Blueprint, redirect, jsonify
 from neo4j.v1 import GraphDatabase, basic_auth
 from flask_bootstrap import Bootstrap
 from flask_appconfig import AppConfig
@@ -160,6 +160,20 @@ def graph_countries():
 
     return render_template("graph_countries.html", data = data)
 
+@app.route('/graph_pays')
+def graph_pays():
+    nodes_l = []
+    c = []
+    data={}
+    result_node = session.run("match (n:Country3) return n.country as node")
+    for r in result_node :
+        nodes_l.append(r["node"])
+    data["nodes"] = nodes_l
+    result = session.run("MATCH (n:Country3)-[r:interaction]->(m:Country3) RETURN n.country,r.cpt_int,m.country")
+    for r in result :
+        c.append(r.values())
+    data["links"]=c
+    return jsonify(data)
 
 session.close()
 if __name__ == "__main__" :

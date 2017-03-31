@@ -8,7 +8,6 @@
  {% endblock %}  
  {% block head %}
     {{super()}}
-   <svg width="960" height="1000"></svg>
    <script src="https://d3js.org/d3.v4.min.js"></script>
  {% endblock %}
 
@@ -25,7 +24,7 @@
        } : null;
    }
    
-   var svg = d3.select("svg"),
+   var svg = d3.select("#mon_block").append("svg").attr("width",960).attr("height",1000),
        width = +svg.attr("width"),
        height = +svg.attr("height");
    
@@ -36,7 +35,7 @@
        .force("charge", d3.forceManyBody())
        .force("center", d3.forceCenter(width / 2, height / 2));
    
-   var graph = {{ data|tojson }}
+   var graph = {{ data }}
    console.log(graph)
      var link = svg.append("g")
          .attr("class", "links")

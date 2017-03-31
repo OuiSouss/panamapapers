@@ -5,11 +5,12 @@
 {{super()}}
     <script src="https://d3js.org/d3.v3.min.js"> </script>
 {% endblock %}
-{% block content %}
 
+{% block scripts %}
+{{super()}}
 <script>
     var json = {{ data|tojson }};
-    var canvas = d3.select("body").append("svg").attr("width",500).attr("height",500);
+    var canvas = d3.select("#mon_block").append("svg").attr("width",500).attr("height",500);
     var values = Object.values(json)
     var keys = Object.keys(json)
     var max = d3.max(values)
