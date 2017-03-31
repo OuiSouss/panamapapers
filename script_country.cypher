@@ -16,8 +16,8 @@
 match (n:Global {sourceID:"Panama Papers"})-[r]->(m:Global) where exists(n.countries) and exists(m.countries) and not (n:Address and m:Address) with split(n.countries,";") as node1, split(m.countries, ";") as node2 
 unwind node1 as nodeD
 unwind node2 as nodeE
-merge (n1:Country3 {country: nodeD})
-merge (n2:Country3 {country: nodeE})
+merge (n1:Country {country: nodeD})
+merge (n2:Country {country: nodeE})
 merge (n1)-[i:interaction {cpt_int: 0}]->(n2) 
 set i.cpt_int = toInt(i.cpt_int)+1
 
@@ -29,9 +29,9 @@ match (n:Country) -[r]->(n:Country) delete r
 match (n:Global {sourceID:"Panama Papers"})-[r]->(m:Global) where exists(n.countries) and exists(m.countries) and not(n:Address or m:Address) with split(n.countries,";") as node1, split(m.countries, ";") as node2 
 unwind node1 as nodeD
 unwind node2 as nodeE
-merge (n1:Country3 {country: nodeD})
+merge (n1:Country {country: nodeD})
 with n1, nodeD, nodeE, node1, node2
-optional match (n2:Country3 {country: nodeE}) where nodeD<>nodeE
+optional match (n2:Country {country: nodeE}) where nodeD<>nodeE
 set n2.country = nodeE
 merge (n:Country {country: nodeE})
 merge (n1)-[i:interaction {cpt_int: 0}]->(n2) 
