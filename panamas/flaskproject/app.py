@@ -7,7 +7,7 @@
 #   $ . venv/bin/activate
 # Then, install its requirements first:
 #
-#   $ pip install -r sample_app/requirements.txt
+#   $ pip install -r requirements.txt
 #
 # Then, you can actually run the application.
 #
@@ -157,7 +157,7 @@ def graph_countries():
             data['links'][x] = {'source': country1, 'target': country2, 'value': s}
             x += 1
         print(i)
-
+    print (data)
     return render_template("graph_countries.html", data = data)
 
 @app.route('/graph_pays')
@@ -167,14 +167,19 @@ def graph_pays():
     data={}
     result_node = session.run("match (n:Country3) return n.country as node")
     for r in result_node :
-        nodes_l.append(r["node"])
+        nodes_l.append({'id': r["node"]})
     data["nodes"] = nodes_l
     result = session.run("MATCH (n:Country3)-[r:interaction]->(m:Country3) RETURN n.country,r.cpt_int,m.country")
     for r in result :
-        c.append(r.values())
+        c.append({'source': r[0], 'target': r[2], 'value': r[1]})
     data["links"]=c
-    return jsonify(data)
+    return render_template("graph_countries.html", data=data)
 
+"""@app.route('/form_test',  methods=['GET','POST'])
+def form_test():
+    if request.method == 'POST':
+        
+"""
 session.close()
 if __name__ == "__main__" :
     app.run(debug=True)
