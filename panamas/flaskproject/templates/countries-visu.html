@@ -6,14 +6,14 @@
     <script src="https://d3js.org/d3.v3.min.js"> </script>
 {% endblock %}
 
-{% block content %}
-  
+{% block scripts %}
+  {{super()}}
 <script >
     var json = {{ data|tojson }};
     var values = Object.values(json)
     var keys = Object.keys(json)
     console.log(keys.length);
-    var canvas = d3.select("body").append("svg").attr("width",100*keys.length).attr("height",500);
+    var canvas = d3.select("#mon_block").append("svg").attr("width",100*keys.length).attr("height",500);
     var max = d3.max(values)
     var heightScale = d3.scale.linear().domain([0,max]).range([0,460]);
     var yScale = d3.scale.linear().domain([0,max]).range([480,20]);

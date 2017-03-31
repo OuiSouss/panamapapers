@@ -105,7 +105,7 @@ def histo_count_neo():
         "Officers": nb_officers}
     return render_template("panama-visu.html", data = data)
 
-@app.route("/histo__count_countries")
+@app.route("/histo_count_countries")
 def histo_count_countries():
     countries_array = ['South Africa', 'Liechtenstein', 'Monaco', 'Belgium', 'Lebanon', 'Switzerland', 'Malaysia', 'Spain', 'United Kingdom', 'Jersey', 'France', 'Luxembourg', 'Taiwan', 'Estonia', 'Mexico', 'Argentina', 'Guernsey', 'United States', 'Venezuela', 'Hong Kong', 'Panama', 'Saudi Arabia', 'Germany', 'Kuwait', 'Poland', 'Brazil', 'Turkey', 'Egypt', 'Canada', 'Portugal', 'Russia', 'Isle of Man', 'Malta', 'Hungary', 'Israel', 'Greece', 'Philippines', 'Italy', 'China', 'Gibraltar', 'Bahamas', 'Honduras', 'Australia', 'Austria', 'Sweden', 'Slovenia', 'Uruguay', 'Thailand', 'Ecuador', 'Colombia', 'United Arab Emirates', 'Peru', 'Czech Republic']
 
@@ -114,7 +114,7 @@ def histo_count_countries():
         s = 0
         i = countries_array.index(country1)
         for country2 in countries_array:
-            result = session.run("MATCH (n:Country3)-[r]->(m:Country3) WHERE (n.country = '" + country1 + "' and m.country = '" + country2 + "') RETURN r.cpt_int as inter")
+            result = session.run("MATCH (n:Country)-[r]->(m:Country) WHERE (n.country = '" + country1 + "' and m.country = '" + country2 + "') RETURN r.cpt_int as inter")
             for r in result:
                 s += r["inter"]
         print i
@@ -123,53 +123,16 @@ def histo_count_countries():
         data[country1] = s
     return render_template("countries-visu.html", data = data)
 
-def fact(n):
-    if n == 0:
-        return 1
-    else:
-        return n * fact(n-1)
-
-def kparmisn(k,n):
-    return fact(n)/(fact(k)*fact(n-k))
-
-@app.route("/graph_countries")
-def graph_countries():
-    countries_array = ['South Africa', 'Liechtenstein', 'Monaco', 'Belgium', 'Lebanon', 'Switzerland', 'Malaysia', 'Spain', 'United Kingdom', 'Jersey', 'France', 'Luxembourg', 'Taiwan', 'Estonia', 'Mexico', 'Argentina', 'Guernsey', 'United States', 'Venezuela', 'Hong Kong', 'Panama', 'Saudi Arabia', 'Germany', 'Kuwait', 'Poland', 'Brazil', 'Turkey', 'Egypt', 'Canada', 'Portugal', 'Russia', 'Isle of Man', 'Malta', 'Hungary', 'Israel', 'Greece', 'Philippines', 'Italy', 'China', 'Gibraltar', 'Bahamas', 'Honduras', 'Australia', 'Austria', 'Sweden', 'Slovenia', 'Uruguay', 'Thailand', 'Ecuador', 'Colombia', 'United Arab Emirates', 'Peru', 'Czech Republic']
-
-    number_of_countries = len(countries_array)
-    print(number_of_countries)
-    data = {}
-    data['nodes'] = [{}] * number_of_countries
-    data['links'] = [{}] * kparmisn(2,number_of_countries)
-
-    x = 0
-
-    for i,country1 in enumerate(countries_array):
-        data['nodes'][i] = {'id': country1}
-        for j in range(i+1,number_of_countries):
-            s = 0
-            country2 = countries_array[j]
-            exist = False
-            result = session.run("MATCH (n:Country3)-[r]->(m:Country3) WHERE (n.country = '" + country1 + "' and m.country = '" + country2 + "') or (n.country = '" + country2 + "' and m.country = '" + country1 + "') RETURN r.cpt_int as inter")
-            for r in result:
-                exist = True
-                s += r["inter"]
-            data['links'][x] = {'source': country1, 'target': country2, 'value': s}
-            x += 1
-        print(i)
-    print (data)
-    return render_template("graph_countries.html", data = data)
-
 @app.route('/graph_pays')
 def graph_pays():
     nodes_l = []
     c = []
     data={}
-    result_node = session.run("match (n:Country3) return n.country as node")
+    result_node = session.run("match (n:Country) return n.country as node")
     for r in result_node :
         nodes_l.append({'id': r["node"]})
     data["nodes"] = nodes_l
-    result = session.run("MATCH (n:Country3)-[r:interaction]->(m:Country3) RETURN n.country,r.cpt_int,m.country")
+    result = session.run("MATCH (n:Country)-[r:interaction]->(m:Country) RETURN n.country,r.cpt_int,m.country")
     for r in result :
         c.append({'source': r[0], 'target': r[2], 'value': r[1]})
     data["links"]=c

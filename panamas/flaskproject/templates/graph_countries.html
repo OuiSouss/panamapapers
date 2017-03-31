@@ -11,8 +11,8 @@
    <script src="https://d3js.org/d3.v4.min.js"></script>
  {% endblock %}
 
- {%block content %}
-   
+ {%block scripts %}
+   {{super()}}
    <script>
    
    function hexToRgb(hex) {
@@ -24,7 +24,7 @@
        } : null;
    }
    
-   var svg = d3.select("#mon_block").append("svg").attr("width",960).attr("height",1000),
+   var svg = d3.select("#mon_block").append("svg").attr("width",1500).attr("height",1500),
        width = +svg.attr("width"),
        height = +svg.attr("height");
    
