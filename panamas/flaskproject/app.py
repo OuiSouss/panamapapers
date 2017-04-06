@@ -11,7 +11,7 @@
 #
 # Then, you can actually run the application.
 #
-#   $ pyton app.py
+#   $ python app.py
 #
 # Afterwards, point your browser to http://localhost:5000, then check out the
 # source.
@@ -20,7 +20,8 @@ from neo4j.v1 import GraphDatabase, basic_auth
 from flask_bootstrap import Bootstrap
 from flask_appconfig import AppConfig
 from flask_debug import Debug
-
+from form import SignupForm
+from markupsafe import escape
 
 frontend = Blueprint("app", __name__)
 def create_app(configfile=None):
@@ -30,9 +31,11 @@ def create_app(configfile=None):
     Debug(app)
     app.register_blueprint(frontend)
     app.config["BOOTSTRAP_SERVE_LOCAL"] = True
+    app.secret_key = 'myverylongsecretkey'
     return app
 
 app = create_app()
+
 global driver,session
 
 driver = GraphDatabase.driver("bolt://localhost", auth=basic_auth("neo4j", "neo"))
@@ -143,6 +146,25 @@ def form_test():
     if request.method == 'POST':
         
 """
+
+@app.route('/example-form', methods=['GET', 'POST'])
+def example_form():
+    form = SignupForm(request.form)
+
+    if request.method == 'POST' and form.validate():
+        # We don't have anything fancy in our application, so we are just
+        # flashing a message when a user completes the form successfully.
+        #
+        # Note that the default flashed messages rendering allows HTML, so
+        # we need to escape things if we input user values:
+        name = form.name.data
+        flash('success')
+
+        # In a real application, you may wish to avoid this tedious redirect.
+        return redirect(url_for('index'))
+
+    return render_template('form.html', form=form)
+
 session.close()
 if __name__ == "__main__" :
     app.run(debug=True)

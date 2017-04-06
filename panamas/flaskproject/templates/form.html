@@ -1,0 +1,15 @@
+{% extends "layout.html" %}
+
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block title %} Form test {% endblock %}
+
+{% block content %}
+
+{% if request.args.get('legacy') -%}
+       {{wtf.quick_form(form, novalidate=True)}}
+{%- else -%}
+       {{form|render_form()}}
+{%- endif %}
+
+{% endblock %}
