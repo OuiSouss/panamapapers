@@ -20,8 +20,7 @@ from neo4j.v1 import GraphDatabase, basic_auth
 from flask_bootstrap import Bootstrap
 from flask_appconfig import AppConfig
 from flask_debug import Debug
-from form import SignupForm
-from markupsafe import escape
+from form import SignupForm, NeoForm
 
 frontend = Blueprint("app", __name__)
 def create_app(configfile=None):
@@ -141,27 +140,32 @@ def graph_pays():
     data["links"]=c
     return render_template("graph_countries.html", data=data)
 
-"""@app.route('/form_test',  methods=['GET','POST'])
+@app.route('/form_test',  methods=['GET','POST'])
 def form_test():
+    form = NeoForm(request.form)
     if request.method == 'POST':
-        
-"""
+        if form.validate_on_submit():
+            name = form.name.data
+            flash("You have selected" + name)
+            return redirect(url_for('index'))
+    return render_template('form.html', form=form)
 
 @app.route('/example-form', methods=['GET', 'POST'])
 def example_form():
     form = SignupForm(request.form)
 
-    if request.method == 'POST' and form.validate():
-        # We don't have anything fancy in our application, so we are just
-        # flashing a message when a user completes the form successfully.
-        #
-        # Note that the default flashed messages rendering allows HTML, so
-        # we need to escape things if we input user values:
-        name = form.name.data
-        flash('success')
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            # We don't have anything fancy in our application, so we are just
+            # flashing a message when a user completes the form successfully.
+            #
+            # Note that the default flashed messages rendering allows HTML, so
+            # we need to escape things if we input user values:
+            name = form.name.data
+            flash('success')
 
-        # In a real application, you may wish to avoid this tedious redirect.
-        return redirect(url_for('index'))
+            # In a real application, you may wish to avoid this tedious redirect.
+            return redirect(url_for('index'))
 
     return render_template('form.html', form=form)
 
