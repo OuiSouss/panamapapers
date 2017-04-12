@@ -144,15 +144,23 @@ def graph_pays():
 @app.route('/test_form', methods=['GET', 'POST'])
 def test_form():
     form = TestForm(request.form)
-    f =[]
+    f ={}
     if request.method == 'POST':
-	name = form.name
-	label_d = form.label_d
-	label_f = form.label_f
-	f.append(request.form["label_d"].encode("utf-8"))
-	f.append(request.form["name"].encode("utf-8"))
-	f.append(request.form["label_f".encode("utf-8")])
-	return form_submit(f)
+        name = form.name
+        label_d = form.label_d
+        label_f = form.label_f
+        if form.validate_on_submit():
+            name = form.name
+            label_d = form.label_d
+            label_f = form.label_f
+            f["label_d"] = request.form["label_d"].encode("utf-8")
+            f["name"] = request.form["name"].encode("utf-8")
+            f["label_f"] = request.form["label_f"].encode("utf-8")
+            print (f)
+            return form_submit(f)
+        else:
+            flash("Not validate", "warning")
+            return render_template('select.html', form=form)
     return render_template('select.html', form=form)
 
 
@@ -160,23 +168,27 @@ def form_submit(form):
     c = []
     node_l = []
     data = {}
-    result = session.run("match (o:" + form[0] + ") where toLower(o.name) contains \""
-                         + form[1] + "\" match (o)-[r] - (c:"
-                         + form[2] + ") return o,r,c")
+    lis = []
+    print(form)
+    result = session.run("match (o:" + form["label_d"] + ") where toLower(o.name) contains \""
+                         + form["name"] + "\" match (o)-[r] - (c:"
+                         + form["label_f"] + ") return o,r,c")
     for r in result :
-        labels_f = []
-        labels_d = []
-        for s in r[0].labels:
-            labels_d.append(s)
-        labels_d = labels_d[1]
-        for s in r[2].labels:
-            labels_f.append(s)
-        labels_f = labels_f[1]
         c.append({'source' : r[0]["name"], 'target' : r[2]["name"], 'values' : r[1].type})
-        node_l.append({"id": r[0]["name"]})
-        node_l.append({"id": r[2]["name"]})
+        if r[0]["name"] not in lis:
+            lis.append(r[0]["name"])
+            node_l.append({"id" : r[0]["name"]})
+        if r[2]["name"] not in lis :
+            lis.append(r[2]["name"])
+            node_l.append({"id" : r[2]["name"]})
     data["nodes"] = node_l
     data["links"] = c
+    if (len(node_l) == 0):
+        messages = "What you wanted is not found in database. Maybe does not exist"
+        flash(messages, 'warning')
+        return render_template("select.html", form=form,  messages=messages)
+    messages = "Yes, we find someting for you"
+    flash(messages, 'success')
     return render_template("submit.html", data=data)
     
 session.close()

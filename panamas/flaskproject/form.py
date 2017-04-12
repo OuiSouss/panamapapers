@@ -3,7 +3,7 @@
 
 from flask_wtf import FlaskForm
 from wtforms.fields import *
-from wtforms.validators import Required, Email, DataRequired, Length
+from wtforms.validators import Required, Email, DataRequired, Length, InputRequired
 from neo4j.v1 import GraphDatabase, basic_auth
 
 class SignupForm(FlaskForm):
@@ -27,7 +27,20 @@ class SignupForm(FlaskForm):
     name = SelectField("name", choices)
 """
 class TestForm(FlaskForm):
-	name = StringField('Name')
-	label_d = SelectField(u'Label de départ', choices=[('Intermediary','Intermediary'), ('Address','Address'), ('Officer','Officer'), ('Entity','Entity'), ('Country','Country')])
-	label_f = SelectField(u'Label d\'arrivée', choices=[('Intermediary','Intermediary'), ('Address','Address'), ('Officer','Officer'), ('Entity','Entity'), ('Country','Country')])
+	name = StringField('Name or part of name', validators=[Required(), DataRequired("Select a name please"),
+                                               Length(min=1, message=("Please give a name longer "))])
+	label_d = SelectField(u'Label de départ',
+                              choices=[('Intermediary','Intermediary'),
+                                       ('Address','Address'),
+                                       ('Officer','Officer'),
+                                       ('Entity','Entity'),
+                                       ('Country','Country')],
+                              validators=[InputRequired("You need to select a label")])
+	label_f = SelectField(u'Label d\'arrivée',
+                              choices=[('Intermediary','Intermediary'),
+                                       ('Address','Address'),
+                                       ('Officer','Officer'),
+                                       ('Entity','Entity'),
+                                       ('Country','Country')],
+                              validators=[InputRequired("You need to select a label")])
 
