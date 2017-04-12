@@ -28,5 +28,6 @@ class SignupForm(FlaskForm):
 """
 class TestForm(FlaskForm):
 	name = StringField('Name')
-	label = SelectField('Label', choices=[('Intermediary','Intermediary'), ('Address','Address'), ('Officer','Officer'), ('Entity','Entity'), ('Country','Country')])
+	label_d = SelectField(u'Label de départ', choices=[('Intermediary','Intermediary'), ('Address','Address'), ('Officer','Officer'), ('Entity','Entity'), ('Country','Country')])
+	label_f = SelectField(u'Label d\'arrivée', choices=[('Intermediary','Intermediary'), ('Address','Address'), ('Officer','Officer'), ('Entity','Entity'), ('Country','Country')])
 

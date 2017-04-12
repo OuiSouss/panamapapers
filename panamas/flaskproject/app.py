@@ -147,20 +147,29 @@ def test_form():
     f =[]
     if request.method == 'POST':
 	name = form.name
-	label = form.label
-	f.append(request.form["label"].encode("utf-8"))
+	label_d = form.label_d
+	label_f = form.label_f
+	f.append(request.form["label_d"].encode("utf-8"))
 	f.append(request.form["name"].encode("utf-8"))
+	f.append(request.form["label_f".encode("utf-8")])
 	return form_submit(f)
     return render_template('select.html', form=form)
 
 
 def form_submit(form):
-    node_l = []
+    c = []
     result = session.run("match (o:" + form[0] + ") where toLower(o.name) contains \""
-                         + form[1] + "\" return o as node")
+                         + form[1] + "\" match (o)-[r] - (c:"
+                         + form[2] + ") return o,r,c")
     for r in result :
-        node_l.append(r["node"].id)
-    return jsonify(node_l)
+        labels_f = []
+        labels_d = []
+        for s in r[0].labels:
+            labels_d.append(s)
+        for s in r[2].labels:
+            labels_f.append(s)
+        c.append({'source' : labels_d, 'target' : labels_f, 'values' : r[1].type})
+    return jsonify(c)
     #return render_template('submit.html', form=form)
 session.close()
 if __name__ == "__main__" :
