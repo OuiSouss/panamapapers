@@ -15,6 +15,17 @@
 #
 # Afterwards, point your browser to http://localhost:5000, then check out the
 # source.
+
+# TODO: check validation country->country doit renvoyer un script
+# TODO: check validation impossiblité de something->Country et l'inverse
+# TODO: afficher sens des edges
+# TODO: afficher le nom des edges (exemple : http://bl.ocks.org/jhb/5955887)
+# TODO: couleur en fonction des labels (officer, entity ...)
+#en plus
+# TODO: profondeur de recherche
+# TODO: mettre les noms into les nodes
+
+
 from flask import Flask, render_template, json, url_for, request, flash, Blueprint, redirect, jsonify
 from neo4j.v1 import GraphDatabase, basic_auth
 from flask_bootstrap import Bootstrap
@@ -190,7 +201,7 @@ def form_submit(form):
     messages = "Yes, we find someting for you"
     flash(messages, 'success')
     return render_template("submit.html", data=data)
-    
+
 #session.close()
 if __name__ == "__main__" :
     app.run(debug=True)
