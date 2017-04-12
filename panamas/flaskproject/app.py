@@ -159,7 +159,7 @@ def test_form():
             print (f)
             return form_submit(f)
         else:
-            flash("Not validate", "warning")
+            flash("Not validate", "danger")
             return render_template('select.html', form=form)
     return render_template('select.html', form=form)
 
