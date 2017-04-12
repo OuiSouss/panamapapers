@@ -177,7 +177,7 @@ def form_submit(form):
         node_l.append({"id": r[2]["name"]})
     data["nodes"] = node_l
     data["links"] = c
-    return jsonify(data)
+    return render_template("submit.html", data=data)
     
 session.close()
 if __name__ == "__main__" :
