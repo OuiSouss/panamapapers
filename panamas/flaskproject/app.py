@@ -20,7 +20,7 @@ from neo4j.v1 import GraphDatabase, basic_auth
 from flask_bootstrap import Bootstrap
 from flask_appconfig import AppConfig
 from flask_debug import Debug
-from form import SignupForm, NeoForm
+from form import SignupForm, TestForm
 
 frontend = Blueprint("app", __name__)
 def create_app(configfile=None):
@@ -140,35 +140,28 @@ def graph_pays():
     data["links"]=c
     return render_template("graph_countries.html", data=data)
 
-@app.route('/form_test',  methods=['GET','POST'])
-def form_test():
-    form = NeoForm(request.form)
+
+@app.route('/test_form', methods=['GET', 'POST'])
+def test_form():
+    form = TestForm(request.form)
+    f =[]
     if request.method == 'POST':
-        if form.validate_on_submit():
-            name = form.name.data
-            flash("You have selected" + name)
-            return redirect(url_for('index'))
-    return render_template('form.html', form=form)
+	name = form.name
+	label = form.label
+	f.append(request.form["label"].encode("utf-8"))
+	f.append(request.form["name"].encode("utf-8"))
+	return form_submit(f)
+    return render_template('select.html', form=form)
 
-@app.route('/example-form', methods=['GET', 'POST'])
-def example_form():
-    form = SignupForm(request.form)
 
-    if request.method == 'POST':
-        if form.validate_on_submit():
-            # We don't have anything fancy in our application, so we are just
-            # flashing a message when a user completes the form successfully.
-            #
-            # Note that the default flashed messages rendering allows HTML, so
-            # we need to escape things if we input user values:
-            name = form.name.data
-            flash('success')
-
-            # In a real application, you may wish to avoid this tedious redirect.
-            return redirect(url_for('index'))
-
-    return render_template('form.html', form=form)
-
+def form_submit(form):
+    node_l = []
+    result = session.run("match (o:" + form[0] + ") where toLower(o.name) contains \""
+                         + form[1] + "\" return o as node")
+    for r in result :
+        node_l.append(r["node"].id)
+    return jsonify(node_l)
+    #return render_template('submit.html', form=form)
 session.close()
 if __name__ == "__main__" :
     app.run(debug=True)

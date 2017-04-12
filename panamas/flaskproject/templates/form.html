@@ -6,7 +6,7 @@
 
 {% block form_contents %}
 
-<form action="{{url_for('form_test')}}" class="form form-horizontal" method="POST" role="form">
+<form action="{{url_for('example_form')}}" class="form form-horizontal" method="POST" role="form">
 	{{ form.csrf_token }}
 	<div class="heading">
         	<h4 class="form-heading">Test Form</h4>
@@ -14,7 +14,7 @@
 	<div class="form-group {% if form.name.errors %} has-error {% endif %}">	
 		{{ form.name.label(class="col-sm-4") }} 
 		<div class="col-sm-3">
-			{{ form.name }}
+			{{ form.name(placeholder="Moi", class="form-control") }}
 		</div>
 		<p class="col-sm-5 help-block">
         		{{ form.name.errors[0] }}

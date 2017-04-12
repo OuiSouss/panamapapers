@@ -1,0 +1,35 @@
+{% extends "layout.html" %}
+
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block title %} Form test {% endblock %}
+
+{% block form_contents %}
+
+<form action="{{url_for('test_form')}}" class="form form-horizontal" method="post" role="form">
+	{{ form.csrf_token }}
+	<div class="heading">
+        	<h4 class="form-heading">Test Form</h4>
+        </div>
+	
+	<div class="form-group">
+		<div class="col-sm-10">
+			{{ form.label.label(class="col-sm-4") }}
+			<div class="col-sm-3">
+ 			{{ form.label(class="form-control") }} 
+			</div>
+		</div>
+	</div>
+			
+			
+	<div class="form-group">
+		<div class="col-sm-10">
+			{{ form.name.label(class="col-sm-4") }}
+			<div class="col-sm-3">
+       				{{ form.name(class="form-control") }}
+			</div>
+		</div>
+	</div>
+	<button class="btn btn-success" type="submit"> Submit </button>
+</form>
+{% endblock %}

@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+
+
 from flask_wtf import FlaskForm
 from wtforms.fields import *
 from wtforms.validators import Required, Email, DataRequired, Length
@@ -10,7 +13,7 @@ class SignupForm(FlaskForm):
 
     submit = SubmitField(u'Signup')
 
-class NeoForm(FlaskForm):
+"""class NeoForm(FlaskForm):
     driver = GraphDatabase.driver("bolt://localhost", auth=basic_auth("neo4j", "neo"))
     session = driver.session()
     result = session.run("match (o:Officer) return distinct toLower(o.name) as name")
@@ -18,7 +21,12 @@ class NeoForm(FlaskForm):
     choices = []
 
     for r in result:
-        choices.append(r["name"])
-    print(choices)
+        choices.append((r["name"])
+    #print(choices)
     
     name = SelectField("name", choices)
+"""
+class TestForm(FlaskForm):
+	name = StringField('Name')
+	label = SelectField('Label', choices=[('Intermediary','Intermediary'), ('Address','Address'), ('Officer','Officer'), ('Entity','Entity'), ('Country','Country')])
+
