@@ -191,6 +191,6 @@ def form_submit(form):
     flash(messages, 'success')
     return render_template("submit.html", data=data)
     
-session.close()
+#session.close()
 if __name__ == "__main__" :
     app.run(debug=True)
