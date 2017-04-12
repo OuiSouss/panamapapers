@@ -158,6 +158,8 @@ def test_form():
 
 def form_submit(form):
     c = []
+    node_l = []
+    data = {}
     result = session.run("match (o:" + form[0] + ") where toLower(o.name) contains \""
                          + form[1] + "\" match (o)-[r] - (c:"
                          + form[2] + ") return o,r,c")
@@ -166,11 +168,17 @@ def form_submit(form):
         labels_d = []
         for s in r[0].labels:
             labels_d.append(s)
+        labels_d = labels_d[1]
         for s in r[2].labels:
             labels_f.append(s)
-        c.append({'source' : labels_d, 'target' : labels_f, 'values' : r[1].type})
-    return jsonify(c)
-    #return render_template('submit.html', form=form)
+        labels_f = labels_f[1]
+        c.append({'source' : r[0]["name"], 'target' : r[2]["name"], 'values' : r[1].type})
+        node_l.append({"id": r[0]["name"]})
+        node_l.append({"id": r[2]["name"]})
+    data["nodes"] = node_l
+    data["links"] = c
+    return jsonify(data)
+    
 session.close()
 if __name__ == "__main__" :
     app.run(debug=True)
