@@ -18,7 +18,7 @@
 """
 
 # TODO: check validation country->country doit renvoyer un script
-# TODO: check validation impossiblité de something->Country et l'inverse
+# FAIT: check validation impossiblité de something->Country et l'inverse
 # TODO: afficher sens des edges
 # TODO: afficher le nom des edges (exemple : http://bl.ocks.org/jhb/5955887)
 # TODO: couleur en fonction des labels (officer, entity ...)
@@ -208,13 +208,27 @@ def test_form():
     form = TestForm(request.form)
     f ={}
     if request.method == 'POST':
-        name = form.name
-        label_d = form.label_d
-        label_f = form.label_f
+        name = form.name.data
+        label_d = form.label_d.data
+        label_f = form.label_f.data
+        check = form.check.data
         if form.validate_on_submit():
-            f["label_d"] = request.form["label_d"].encode("utf-8")
-            f["name"] = request.form["name"].encode("utf-8")
-            f["label_f"] = request.form["label_f"].encode("utf-8")
+            """
+                formulaire validé donc on a vérifié si ce sont les bons champs pour envoyer une requête
+                si depart ou arrivée est country et qu'un autre champ est sélectionné
+                pas de requête possible
+                si deux country, formulaire dynamique et on rend une vue spécifique à des pays
+                si autres on rend une vue par rapport au champs name rempli
+            """
+            if ((label_d == "Country" or label_f == "Country") and label_d != label_f):                
+                flash("Not try to give a Country -> other or reverse situation, it will not work","danger")
+                return redirect(url_for('test_form'))
+            if (label_d == "Country" and label_d == label_f):
+                return redirect(url_for('form_country'))
+            f["label_d"] = label_d
+            f["name"] = name
+            f["label_f"] = label_f
+            f["check"] = check
             return form_submit(f)
         else:
             flash("Not validate", "danger")
@@ -222,14 +236,21 @@ def test_form():
     return render_template('select.html', form=form)
 
 """
+    :param form: dictionnaire avec les champs du formulaire
+    :return: vue submit avec data les données nécessaire pour créer un graph d3 si des données on été trouvée
 """
 def form_submit(form):
     c = []
     node_l = []
     data = {}
     lis = []
-    result = session.run("match (o:" + form["label_d"] + ") where toLower(o.name) contains \""
-                         + form["name"] + "\" match (o)-[r] - (c:"
+    if (form["check"] == True):
+        result = session.run("match (o:" + form["label_d"] + ") where o.name = \""
+                         + form["name"]+ "\" match (o)-[r] - (c:"
+                         + form["label_f"] + ") return o,r,c")
+    else:
+        result = session.run("match (o:" + form["label_d"] + ") where toLower(o.name) contains \""
+                         + form["name"].lower() + "\" match (o)-[r] - (c:"
                          + form["label_f"] + ") return o,r,c")
     for r in result :
         c.append({'source' : r[0]["name"], 'target' : r[2]["name"], 'values' : r[1].type})
