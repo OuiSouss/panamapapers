@@ -29,7 +29,7 @@ class TestForm(FlaskForm):
     """
     name = StringField('Name or part of name',
                        validators=[DataRequired("Write something please"),
-                                   Length(min=1, message=("Please give a longer name "))])
+                                   Length(min=1, message=("Please give a longername "))])
     label_d = SelectField(u'Label de départ',
                           choices=[('Intermediary','Intermediary'),
                                        ('Address','Address'),

@@ -203,8 +203,8 @@ def graph_pays():
     :return: [GET] vue select.html à la première demande du formulaire
              [POST] vue submit.form si form validé sinon select.html
 """
-@app.route('/test_form', methods=['GET', 'POST'])
-def test_form():
+@app.route('/form', methods=['GET', 'POST'])
+def form():
     form = TestForm(request.form)
     f ={}
     if request.method == 'POST':
@@ -223,7 +223,7 @@ def test_form():
 
             if ((label_d == "Country" or label_f == "Country") and label_d != label_f):                
                 flash("Please, don't try to give a Country -> other or reverse situation, it will not work","danger")
-                return redirect(url_for('test_form'))
+                return redirect(url_for('form'))
             if (label_d == "Country" and label_d == label_f):
                 return redirect(url_for('form_country'))
             f["label_d"] = label_d
@@ -275,7 +275,7 @@ def form_submit(form):
     if (len(node_l) == 0):
         messages = "What you wanted was not find in our database. Maybe it does not exist"
         flash(messages, 'warning')
-        return render_template("submit.html", data=data)
+        return redirect(url_for("form"))
     messages = "Yes, we found something for you"
     flash(messages, 'success')
     return render_template("submit.html", data=data)
@@ -315,11 +315,12 @@ def form_country():
             list_l[j]["value"] = i["cpt_int"]
             j += 1
             
-        print(node_l, list_l)
-        
+        if (len(node_l) == 0):
+            flash("Nothing found. Try to give a number to the deep higher or change countries selected","warning")
+            return redirect(url_for("form_country"))
         data["nodes"]= node_l
         data["links"] = list_l
-
+        flash("Yes, we found something for you. Take a look to shortest path","success")
         return render_template("sub_graph_countries.html", data = data)
     return render_template("form_country.html", form= form)
 
