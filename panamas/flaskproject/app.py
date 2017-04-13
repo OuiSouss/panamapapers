@@ -19,8 +19,8 @@
 
 # TODO: check validation country->country doit renvoyer un script
 # FAIT: check validation impossiblité de something->Country et l'inverse
-# TODO: afficher sens des edges
-# TODO: afficher le nom des edges (exemple : http://bl.ocks.org/jhb/5955887)
+# FAIT: afficher sens des edges
+# FAIT: afficher le nom des edges (exemple : http://bl.ocks.org/jhb/5955887)
 # TODO: couleur en fonction des labels (officer, entity ...)
 #en plus
 # TODO: profondeur de recherche
@@ -37,7 +37,7 @@ from form import SignupForm, TestForm
 frontend = Blueprint("app", __name__)
 """
     Création de l'application Flask
-    Initialisation de Bootstrap, Debug, 
+    Initialisation de Bootstrap, Debug,
 """
 def create_app(configfile=None):
     app = Flask(__name__)
@@ -65,7 +65,7 @@ def index():
 
 """
     :param name: string enter dans l'url
-    :return: affiche la string 
+    :return: affiche la string
 """
 @app.route("/hello/<name>")
 def hello(name):
@@ -106,7 +106,7 @@ def histo_temp():
     return render_template("panama-visu.html", data=data)
 
 """
-    :param type: string présent dans le json data 
+    :param type: string présent dans le json data
     :return: affiche un message selon le type entrer dans l'url
     un message de non trouvé sinon
 """
@@ -220,7 +220,7 @@ def test_form():
                 si deux country, formulaire dynamique et on rend une vue spécifique à des pays
                 si autres on rend une vue par rapport au champs name rempli
             """
-            if ((label_d == "Country" or label_f == "Country") and label_d != label_f):                
+            if ((label_d == "Country" or label_f == "Country") and label_d != label_f):
                 flash("Not try to give a Country -> other or reverse situation, it will not work","danger")
                 return redirect(url_for('test_form'))
             if (label_d == "Country" and label_d == label_f):

@@ -8,45 +8,39 @@
 <script src="https://d3js.org/d3.v4.min.js"></script>
    <script>
 
-   function hexToRgb(hex) {
-       var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-       return result ? {
-           r: parseInt(result[1], 16),
-           g: parseInt(result[2], 16),
-           b: parseInt(result[3], 16)
-       } : null;
-   }
+   var height = 1500;
+   var width = 1500;
 
    //-----------------------------------
    //----------variable svg-------------
    //-----------------------------------
-   var svg = d3.select("#mon_block").append("svg").attr("width",1500).attr("height",1500),
-       width = +svg.attr("width"),
-       height = +svg.attr("height");
+   var svg = d3.select("#mon_block").append("svg")
+   .attr("width",width)
+   .attr("height",height);
 
    var color = d3.scaleOrdinal(d3.schemeCategory20);
 
+   //--------------------------------------------
+   //--------variable with the data inside------------
+   //--------------------------------------------
+  var graph = {{ data|tojson }}
+  console.log(graph)
+
+ var linkLength = 30*Math.sqrt(graph.links.length);
 
    //------------------------------------------
    //----------variable for the force----------
    //------------------------------------------
    var simulation = d3.forceSimulation()
-       .force("link", d3.forceLink().distance(distance()).id(function(d) { return d.id; }))
+       .force("link", d3.forceLink().distance(linkLength).id(function(d) { return d.id;}))
        .force("charge", d3.forceManyBody())
        .force("center", d3.forceCenter(width / 2, height / 2));
-
-
-    //--------------------------------------------
-    //--------variable within the data------------
-    //--------------------------------------------
-   var graph = {{ data|tojson }}
-   console.log(graph)
 
 
    //--------------------------------------------
    //--------node's variable---------------------
    //--------------------------------------------
-   var node = svg.append("g")//add 1 'g' space
+   var node = svg.append("g")//add a 'g' space
        .attr("class", "nodes")
      .selectAll("circle")
      .data(graph.nodes)//link node's data with the circle
@@ -130,7 +124,7 @@
             .style("pointer-events", "none")
             .text(function(d,i){return ''+d.values});
 
-
+//define the marker
      svg.append('defs')
         .append('marker')
              .attr('id','arrowhead')
@@ -187,10 +181,6 @@
          });
      }
 
-
-   function distance(){
-     return 500;
-   }
 
    function dragstarted(d) {
      if (!d3.event.active) simulation.alphaTarget(0.3).restart();
