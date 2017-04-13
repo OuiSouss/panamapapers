@@ -6,7 +6,7 @@
 
 {% block form_contents %}
 
-<form action="{{url_for('test_form')}}" class="form form-horizontal" method="post" role="form">
+<form action="{{url_for('form')}}" class="form form-horizontal" method="post" role="form">
 	{{ form.csrf_token }}
 	<div class="heading">
         	<h4 class="form-heading">Test Form</h4>
