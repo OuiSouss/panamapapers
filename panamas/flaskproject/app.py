@@ -1,20 +1,21 @@
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
-# Welcome to our L3-projet-techno application about panama papers . This will give you a
-# guided tour around creating our application using Flask-Bootstrap and other package.
-# From Amélie Risi, Chloe Pathé, Lucas Vivas
-#
-# To run this application yourself, please activate virtualennv first in flaskproject folder:
-#   $ . venv/bin/activate
-# Then, install its requirements first:
-#
-#   $ pip install -r requirements.txt
-#
-# Then, you can actually run the application.
-#
-#   $ python app.py
-#
-# Afterwards, point your browser to http://localhost:5000, then check out the
-# source.
+"""Welcome to our L3-projet-techno application about panama papers . This will give you a
+ guided tour around creating our application using Flask-Bootstrap and other package.
+ From Amélie Risi, Chloe Pathé, Lucas Vivas
+
+ To run this application yourself, please activate virtualennv first in flaskproject folder:
+   $ . venv/bin/activate
+ Then, install its requirements first:
+
+   $ pip install -r requirements.txt
+
+ Then, you can actually run the application.
+   $ python app.py
+
+ Afterwards, point your browser to http://localhost:5000, then check out the
+ source.
+"""
 
 # TODO: check validation country->country doit renvoyer un script
 # TODO: check validation impossiblité de something->Country et l'inverse
@@ -161,13 +162,9 @@ def test_form():
         label_d = form.label_d
         label_f = form.label_f
         if form.validate_on_submit():
-            name = form.name
-            label_d = form.label_d
-            label_f = form.label_f
             f["label_d"] = request.form["label_d"].encode("utf-8")
             f["name"] = request.form["name"].encode("utf-8")
             f["label_f"] = request.form["label_f"].encode("utf-8")
-            print (f)
             return form_submit(f)
         else:
             flash("Not validate", "danger")
@@ -180,7 +177,6 @@ def form_submit(form):
     node_l = []
     data = {}
     lis = []
-    print(form)
     result = session.run("match (o:" + form["label_d"] + ") where toLower(o.name) contains \""
                          + form["name"] + "\" match (o)-[r] - (c:"
                          + form["label_f"] + ") return o,r,c")
