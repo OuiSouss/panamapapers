@@ -10,6 +10,7 @@
 
    var height = 1500;
    var width = 1500;
+   var radius = 10;
 
    //-----------------------------------
    //----------variable svg-------------
@@ -18,7 +19,6 @@
    .attr("width",width)
    .attr("height",height);
 
-   var color = d3.scaleOrdinal(d3.schemeCategory20);
 
    //--------------------------------------------
    //--------variable with the data inside------------
@@ -46,7 +46,7 @@
      .data(graph.nodes)//link node's data with the circle
      .enter()
      .append("circle")//put some circle inside 'g' space
-       .attr("r", 5)
+       .attr("r", radius)
        .attr("fill", function(d){return selectColor(d)})
        .call(d3.drag()
            .on("start", dragstarted)
@@ -129,7 +129,7 @@
         .append('marker')
              .attr('id','arrowhead')
              .attr('viewBox','-0 -5 10 10')
-             .attr('refX',15)
+             .attr('refX',radius + 10)
              .attr('refY',0)
              //'markerUnits','strokeWidth')
              .attr('orient','auto')
@@ -152,20 +152,23 @@
 
    function ticked() { //this function is used for the force
      link
-         .attr("x1", function(d) { return d.source.x; })
-         .attr("y1", function(d) { return d.source.y; })
-         .attr("x2", function(d) { return d.target.x; })
-         .attr("y2", function(d) { return d.target.y; });
+         .attr("x1", function(d) { return border(d.source.x, width);})
+         .attr("y1", function(d) { return border(d.source.y, height);})
+         .attr("x2", function(d) { return border(d.target.x, width);})
+         .attr("y2", function(d) { return border(d.target.y, height);});
 
      node
-         .attr("cx", function(d) { return d.x; })
-         .attr("cy", function(d) { return d.y; });
+         .attr("cx", function(d) { return border(d.x, width); })
+         .attr("cy", function(d) { return border(d.y, height); });
 
      textNodes
-         .attr("x", function(d) {return d.x})
-         .attr("y", function(d) {return d.y});
+         .attr("x", function(d) {return border(d.x, width);})
+         .attr("y", function(d) {return border(d.y, height);});
      edgepaths
-         .attr('d', function(d) { return 'M '+d.source.x+' '+d.source.y+' L '+ d.target.x +' '+d.target.y});
+         .attr('d', function(d) { return 'M '+border(d.source.x, width)
+         +' '+border(d.source.y, height)
+         +' L '+ border(d.target.x,width)
+         +' '+ border(d.target.y,height)});
 
      edgelabels
          .attr('transform',function(d,i){
@@ -181,6 +184,9 @@
          });
      }
 
+   function border(x,size){
+      return Math.max(radius, Math.min(size - radius, x));
+   }
 
    function selectColor(d){
      switch (d.label) {
