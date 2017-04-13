@@ -240,7 +240,7 @@ def test_form():
     :return: vue submit avec data les données nécessaire pour créer un graph d3 si des données on été trouvée
 """
 def form_submit(form):
-    c = []
+    link_l = []
     node_l = []
     data = {}
     lis = []
@@ -253,15 +253,24 @@ def form_submit(form):
                          + form["name"].lower() + "\" match (o)-[r] - (c:"
                          + form["label_f"] + ") return o,r,c")
     for r in result :
-        c.append({'source' : r[0]["name"], 'target' : r[2]["name"], 'values' : r[1].type})
+        labels_r0 = []
+        labels_r2 = []
+        for s in r[0].labels:
+            labels_r0.append(s)
+        for s in r[2].labels:
+            labels_r2.append(s)
+        labels_r0 = labels_r0[1]
+        labels_r2 = labels_r2[1]
+        print(labels_r0, labels_r2)
+        link_l.append({'source' : r[0]["name"], 'target' : r[2]["name"], 'values' : r[1].type})
         if r[0]["name"] not in lis:
             lis.append(r[0]["name"])
-            node_l.append({"id" : r[0]["name"]})
+            node_l.append({"id" : r[0]["name"], 'label': labels_r0 })
         if r[2]["name"] not in lis :
             lis.append(r[2]["name"])
-            node_l.append({"id" : r[2]["name"]})
+            node_l.append({"id" : r[2]["name"], 'label' : labels_r2})
     data["nodes"] = node_l
-    data["links"] = c
+    data["links"] = link_l
     if (len(node_l) == 0):
         messages = "What you wanted is not found in database. Maybe does not exist"
         flash(messages, 'warning')
