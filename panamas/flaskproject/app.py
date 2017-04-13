@@ -35,6 +35,10 @@ from flask_debug import Debug
 from form import SignupForm, TestForm
 
 frontend = Blueprint("app", __name__)
+"""
+    Création de l'application Flask
+    Initialisation de Bootstrap, Debug, 
+"""
 def create_app(configfile=None):
     app = Flask(__name__)
     AppConfig(app)
@@ -52,27 +56,48 @@ global driver,session
 driver = GraphDatabase.driver("bolt://localhost", auth=basic_auth("neo4j", "neo"))
 session = driver.session()
 
+"""
+    :return: index.html page d'accueil
+"""
 @app.route("/")
 def index():
     return render_template("index.html")
 
+"""
+    :param name: string enter dans l'url
+    :return: affiche la string 
+"""
 @app.route("/hello/<name>")
 def hello(name):
     return "hello " + name
 
+"""
+    :return: hello s dans le cas de défault sinon
+    hello quelquechose si url=  hello2?name=moi
+"""
 @app.route("/hello2")
 def hello2():
     name = request.args.get('name', 's')
     return "hello " + name
 
+"""
+    :return: un histo qui est sur panama-visu.html dans le dossier static
+"""
 @app.route ("/histo")
 def histo():
     return app.send_static_file("panama-visu.html")
 
+"""
+    :return: envoi le fichier data qui sera utilisé par la route histo
+"""
 @app.route("/data.json")
 def data():
     return app.send_static_file("data.json")
 
+"""
+    :return: retourne panama-visu.html du dossier template après avoir chargé
+    le fichier data.json en static
+"""
 @app.route("/histo_temp")
 
 def histo_temp():
@@ -80,6 +105,11 @@ def histo_temp():
     data = json.load(f)
     return render_template("panama-visu.html", data=data)
 
+"""
+    :param type: string présent dans le json data 
+    :return: affiche un message selon le type entrer dans l'url
+    un message de non trouvé sinon
+"""
 @app.route("/data/count/<type>")
 def data_count(type):
     f = open("static/data.json")
@@ -89,6 +119,9 @@ def data_count(type):
     else:
         return "Type not specify or type doesn't exist in data"
 
+"""
+    :return: nombre d'intermediaire trouvé dans la base de donnée
+"""
 @app.route("/count_test_neo")
 def count_test_neo():
     result = session.run("match (n:Intermediary) return count(n) as nombre")
@@ -97,7 +130,11 @@ def count_test_neo():
         res = rec["nombre"]
     return str(res)
 
-
+"""
+    :param driver: accès via GraphDatabase à notre base de donnée Neo4j
+    :param n_type: string nom d'un label de la base de donnée
+    :return: nombre de noeud du type n_type
+"""
 def count_type(driver, n_type):
     result = session.run("match (n:%s) return count(n) as nombre"%n_type)
     res = 0
@@ -105,6 +142,10 @@ def count_type(driver, n_type):
         res = rec["nombre"]
     return res
 
+"""
+    :return: rend la page panama-visu avec templating
+    data correspond à un dictionaire avec le nombre de noeud de chaque types
+"""
 @app.route("/histo_count_neo")
 def histo_count_neo():
 
@@ -119,6 +160,9 @@ def histo_count_neo():
         "Officers": nb_officers}
     return render_template("panama-visu.html", data = data)
 
+"""
+    :return: vue countries.hmtl histogramme nombre des interactions entre les pays de notre liste
+"""
 @app.route("/histo_count_countries")
 def histo_count_countries():
     countries_array = ['South Africa', 'Liechtenstein', 'Monaco', 'Belgium', 'Lebanon', 'Switzerland', 'Malaysia', 'Spain', 'United Kingdom', 'Jersey', 'France', 'Luxembourg', 'Taiwan', 'Estonia', 'Mexico', 'Argentina', 'Guernsey', 'United States', 'Venezuela', 'Hong Kong', 'Panama', 'Saudi Arabia', 'Germany', 'Kuwait', 'Poland', 'Brazil', 'Turkey', 'Egypt', 'Canada', 'Portugal', 'Russia', 'Isle of Man', 'Malta', 'Hungary', 'Israel', 'Greece', 'Philippines', 'Italy', 'China', 'Gibraltar', 'Bahamas', 'Honduras', 'Australia', 'Austria', 'Sweden', 'Slovenia', 'Uruguay', 'Thailand', 'Ecuador', 'Colombia', 'United Arab Emirates', 'Peru', 'Czech Republic']
@@ -137,6 +181,9 @@ def histo_count_countries():
         data[country1] = s
     return render_template("countries-visu.html", data = data)
 
+"""
+    :return: vue de visualisation avec d3 du graphe d'interaction des pays
+"""
 @app.route('/graph_pays')
 def graph_pays():
     nodes_l = []
@@ -152,7 +199,10 @@ def graph_pays():
     data["links"]=c
     return render_template("graph_countries.html", data=data)
 
-
+"""
+    :return: [GET] vue select.html à la première demande du formulaire
+             [POST] vue submit.form si form validé sinon select.html
+"""
 @app.route('/test_form', methods=['GET', 'POST'])
 def test_form():
     form = TestForm(request.form)
@@ -171,7 +221,8 @@ def test_form():
             return render_template('select.html', form=form)
     return render_template('select.html', form=form)
 
-
+"""
+"""
 def form_submit(form):
     c = []
     node_l = []
