@@ -44,6 +44,7 @@ class TestForm(FlaskForm):
                                        ('Entity','Entity'),
                                        ('Country','Country')],
                           validators=[InputRequired("You need to select a label")])
+    check = BooleanField("Exact match for name field")
 
 
 class CountryForm(FlaskForm):

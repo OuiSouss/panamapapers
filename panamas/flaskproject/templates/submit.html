@@ -8,59 +8,58 @@
 <script src="https://d3js.org/d3.v4.min.js"></script>
    <script>
 
-   function hexToRgb(hex) {
-       var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-       return result ? {
-           r: parseInt(result[1], 16),
-           g: parseInt(result[2], 16),
-           b: parseInt(result[3], 16)
-       } : null;
-   }
+   var height = 1500;
+   var width = 1500;
+   var radius = 10;
 
-   var svg = d3.select("#mon_block").append("svg").attr("width",1500).attr("height",1500),
-       width = +svg.attr("width"),
-       height = +svg.attr("height");
+   //-----------------------------------
+   //----------variable svg-------------
+   //-----------------------------------
+   var svg = d3.select("#mon_block").append("svg")
+   .attr("width",width)
+   .attr("height",height);
 
-   var color = d3.scaleOrdinal(d3.schemeCategory20);
 
+   //--------------------------------------------
+   //--------variable with the data inside------------
+   //--------------------------------------------
+  var graph = {{ data|tojson }}
+  console.log(graph)
+
+ var linkLength = 30*Math.sqrt(graph.links.length);
+
+   //------------------------------------------
+   //----------variable for the force----------
+   //------------------------------------------
    var simulation = d3.forceSimulation()
-       .force("link", d3.forceLink().distance(distance()).id(function(d) { return d.id; }))
+       .force("link", d3.forceLink().distance(linkLength).id(function(d) { return d.id;}))
        .force("charge", d3.forceManyBody())
        .force("center", d3.forceCenter(width / 2, height / 2));
 
-   var graph = {{ data|tojson }}
-   console.log(graph)
 
-   var link = svg.append("g")
-       .attr("class", "links")
-     .selectAll("line")
-     .data(graph.links)
-     .enter()
-     .append("line")
-        .attr("x1", function(d) { return d.source.x})
-        .attr("y1", function(d) { return d.source.y})
-        .attr("x2", function(d) { return d.target.x})
-        .attr("y2", function(d) { return d.target.y})
-        .attr("stroke-width", 1)
-        .attr("stroke", "grey")
-
-
-   var node = svg.append("g")
+   //--------------------------------------------
+   //--------node's variable---------------------
+   //--------------------------------------------
+   var node = svg.append("g")//add a 'g' space
        .attr("class", "nodes")
      .selectAll("circle")
-     .data(graph.nodes)
+     .data(graph.nodes)//link node's data with the circle
      .enter()
-     .append("circle")
-       .attr("r", 5)
-       .attr("fill", function(d) { return color(d.group); })
+     .append("circle")//put some circle inside 'g' space
+       .attr("r", radius)
+       .attr("fill", function(d){return selectColor(d)})
        .call(d3.drag()
            .on("start", dragstarted)
            .on("drag", dragged)
            .on("end", dragended));
 
-   node.append("title")
-       .text(function(d) { return d.id; });
+    node.append("title")//add a title (it's the word wrote when your mouse stay on the circle) for each node
+        .text(function(d) { return d.id; });
 
+
+  //--------------------------------------------
+  //--------node name's variable---------------------
+  //--------------------------------------------
    var textNodes = svg.append("g")
           .attr("class","textNodes")
        .selectAll("text")
@@ -71,8 +70,79 @@
         .attr("y", function(d){return d.y})
         .text(function(d) {return d.id})
         .attr("font-family", "sans-serif")
-        .attr("font-size", "20px")
-        .attr("fill", "red");
+        .attr("font-size", "14px")
+        .attr("fill", "#555555");
+
+
+   //--------------------------------------------
+   //--------link's variable---------------------
+   //--------------------------------------------
+   var link = svg.selectAll("line")
+     .data(graph.links)
+     .enter()
+     .append("line")
+        .attr("id", function(d,i){return "link "+i})
+        .attr("marker-end", 'url(#arrowhead)')
+        .style("stroke-width", 1)
+        .style("stroke", "grey")
+        .style("pointer-events", "none");
+
+
+   //--------------------------------------------
+   //--------link path's variable---------------------
+   //--------------------------------------------
+    var edgepaths = svg.selectAll(".edgepath")
+            .data(graph.links)
+            .enter()
+            .append("path")
+            .attr("class", "edgepath")
+            //.attr("d", function(d){ return "M "+ d.source.x +" "+ d.source.y+" L "+ d.target.x +" "+d.target.y})
+            .attr('fill-opacity', 0)
+            .attr('stroke-opacity', 0)
+            .attr("fill", "blue")
+            .attr("stroke", "green")
+            .attr("id", function(d,i) {return "edgepath"+i})
+            .style("pointer-events", "none");
+
+
+   //--------------------------------------------
+   //--------link label's variable---------------
+   //--------------------------------------------
+    var edgelabels = svg.selectAll("edgelabel")
+            .data(graph.links)
+            .enter()
+            .append('text')
+            .style("pointer-events", "none")
+            .attr('class', 'edgelabel')
+            .attr('id', function(d){return ''+d.values})
+            .attr('dx', 80)
+            .attr('dy', 0)
+            .attr('font-size', 10)
+            .attr('fill', '#aaa');
+
+//needed to print the text on the screen, add the value of this text
+    edgelabels.append('textPath')
+            .attr('xlink:href',function(d,i) {return '#edgepath'+i})
+            .style("pointer-events", "none")
+            .text(function(d,i){return ''+d.values});
+
+//define the marker
+     svg.append('defs')
+        .append('marker')
+             .attr('id','arrowhead')
+             .attr('viewBox','-0 -5 10 10')
+             .attr('refX',radius + 10)
+             .attr('refY',0)
+             //'markerUnits','strokeWidth')
+             .attr('orient','auto')
+             .attr('markerWidth',10)
+             .attr('markerHeight',10)
+             .attr('xoverflow','visible')
+        .append('svg:path')
+             .attr('d', 'M 0,-5 L 10 ,0 L 0,5')
+             .attr('fill', '#ccc')
+             .attr('stroke','#ccc');
+
 
    simulation
        .nodes(graph.nodes)
@@ -81,28 +151,61 @@
    simulation.force("link")
        .links(graph.links);
 
-   function ticked() {
 
+   function ticked() { //this function is used for the force
      link
-         .attr("x1", function(d) { return d.source.x; })
-         .attr("y1", function(d) { return d.source.y; })
-         .attr("x2", function(d) { return d.target.x; })
-         .attr("y2", function(d) { return d.target.y; });
+         .attr("x1", function(d) { return border(d.source.x, width);})
+         .attr("y1", function(d) { return border(d.source.y, height);})
+         .attr("x2", function(d) { return border(d.target.x, width);})
+         .attr("y2", function(d) { return border(d.target.y, height);});
 
      node
-         .attr("cx", function(d) { return d.x; })
-         .attr("cy", function(d) { return d.y; });
+         .attr("cx", function(d) { return border(d.x, width); })
+         .attr("cy", function(d) { return border(d.y, height); });
 
      textNodes
-         .attr("x", function(d) {return d.x})
-         .attr("y", function(d) {return d.y});
+         .attr("x", function(d) {return border(d.x, width);})
+         .attr("y", function(d) {return border(d.y, height);});
+     edgepaths
+         .attr('d', function(d) { return 'M '+border(d.source.x, width)
+         +' '+border(d.source.y, height)
+         +' L '+ border(d.target.x,width)
+         +' '+ border(d.target.y,height)});
 
-
+     edgelabels
+         .attr('transform',function(d,i){
+             if (d.target.x<d.source.x){
+                 bbox = this.getBBox();
+                 rx = bbox.x+bbox.width/2;
+                 ry = bbox.y+bbox.height/2;
+                 return 'rotate(180 '+rx+' '+ry+')';
+                 }
+             else {
+                 return 'rotate(0)';
+                 }
+         });
      }
 
+   function border(x,size){
+      return Math.max(radius, Math.min(size - radius, x));
+   }
 
-   function distance(){
-     return 500;
+   function selectColor(d){
+     switch (d.label) {
+      case "Officer":
+         return "#cae1bd";
+      case "Entity":
+         return "#fbe591";
+      case "Intermediary":
+         return "#f9cbaa";
+      case "Address":
+         return "#fce5c0";
+      case "Country":
+         return "#d8e3e2";
+       default:
+          break;
+     }
+     return "#000000";
    }
 
    function dragstarted(d) {

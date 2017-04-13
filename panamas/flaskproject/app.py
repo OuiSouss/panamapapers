@@ -18,10 +18,10 @@
 """
 
 # TODO: check validation country->country doit renvoyer un script
-# TODO: check validation impossiblité de something->Country et l'inverse
-# TODO: afficher sens des edges
-# TODO: afficher le nom des edges (exemple : http://bl.ocks.org/jhb/5955887)
-# TODO: couleur en fonction des labels (officer, entity ...)
+# FAIT: check validation impossiblité de something->Country et l'inverse
+# FAIT: afficher sens des edges
+# FAIT: afficher le nom des edges (exemple : http://bl.ocks.org/jhb/5955887)
+# FAIT: couleur en fonction des labels (officer, entity ...)
 #en plus
 # TODO: profondeur de recherche
 # TODO: mettre les noms into les nodes
@@ -37,7 +37,7 @@ from form import SignupForm, TestForm, CountryForm
 frontend = Blueprint("app", __name__)
 """
     Création de l'application Flask
-    Initialisation de Bootstrap, Debug, 
+    Initialisation de Bootstrap, Debug,
 """
 def create_app(configfile=None):
     app = Flask(__name__)
@@ -65,7 +65,7 @@ def index():
 
 """
     :param name: string enter dans l'url
-    :return: affiche la string 
+    :return: affiche la string
 """
 @app.route("/hello/<name>")
 def hello(name):
@@ -106,7 +106,7 @@ def histo_temp():
     return render_template("panama-visu.html", data=data)
 
 """
-    :param type: string présent dans le json data 
+    :param type: string présent dans le json data
     :return: affiche un message selon le type entrer dans l'url
     un message de non trouvé sinon
 """
@@ -211,6 +211,7 @@ def test_form():
         name = form.name.data
         label_d = form.label_d.data
         label_f = form.label_f.data
+        check = form.check.data
         if form.validate_on_submit():
             """
                 formulaire validé donc on a vérifié si ce sont les bons champs pour envoyer une requête
@@ -219,14 +220,16 @@ def test_form():
                 si deux country, formulaire dynamique et on rend une vue spécifique à des pays
                 si autres on rend une vue par rapport au champs name rempli
             """
+
             if ((label_d == "Country" or label_f == "Country") and label_d != label_f):                
                 flash("Please, don't try to give a Country -> other or reverse situation, it will not work","danger")
                 return redirect(url_for('test_form'))
             if (label_d == "Country" and label_d == label_f):
                 return redirect(url_for('form_country'))
-            f["label_d"] = request.form["label_d"].encode("utf-8")
-            f["name"] = request.form["name"].encode("utf-8")
-            f["label_f"] = request.form["label_f"].encode("utf-8")
+            f["label_d"] = label_d
+            f["name"] = name
+            f["label_f"] = label_f
+            f["check"] = check
             return form_submit(f)
         else:
             flash("Not validate", "danger")
@@ -238,23 +241,37 @@ def test_form():
     :return: vue submit avec data les données nécessaire pour créer un graph d3 si des données on été trouvée
 """
 def form_submit(form):
-    c = []
+    link_l = []
     node_l = []
     data = {}
     lis = []
-    result = session.run("match (o:" + form["label_d"] + ") where toLower(o.name) contains \""
-                         + form["name"] + "\" match (o)-[r] - (c:"
+    if (form["check"] == True):
+        result = session.run("match (o:" + form["label_d"] + ") where o.name = \""
+                         + form["name"]+ "\" match (o)-[r] - (c:"
+                         + form["label_f"] + ") return o,r,c")
+    else:
+        result = session.run("match (o:" + form["label_d"] + ") where toLower(o.name) contains \""
+                         + form["name"].lower() + "\" match (o)-[r] - (c:"
                          + form["label_f"] + ") return o,r,c")
     for r in result :
-        c.append({'source' : r[0]["name"], 'target' : r[2]["name"], 'values' : r[1].type})
+        labels_r0 = []
+        labels_r2 = []
+        for s in r[0].labels:
+            labels_r0.append(s)
+        for s in r[2].labels:
+            labels_r2.append(s)
+        labels_r0 = labels_r0[1]
+        labels_r2 = labels_r2[1]
+        print(labels_r0, labels_r2)
+        link_l.append({'source' : r[0]["name"], 'target' : r[2]["name"], 'values' : r[1].type})
         if r[0]["name"] not in lis:
             lis.append(r[0]["name"])
-            node_l.append({"id" : r[0]["name"]})
+            node_l.append({"id" : r[0]["name"], 'label': labels_r0 })
         if r[2]["name"] not in lis :
             lis.append(r[2]["name"])
-            node_l.append({"id" : r[2]["name"]})
+            node_l.append({"id" : r[2]["name"], 'label' : labels_r2})
     data["nodes"] = node_l
-    data["links"] = c
+    data["links"] = link_l
     if (len(node_l) == 0):
         messages = "What you wanted was not find in our database. Maybe it does not exist"
         flash(messages, 'warning')
