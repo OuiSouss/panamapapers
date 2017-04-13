@@ -4,7 +4,7 @@
 
 from flask_wtf import FlaskForm
 from wtforms.fields import *
-from wtforms.validators import Required, Email, DataRequired, Length, InputRequired,EqualTo
+from wtforms.validators import Required, Email, DataRequired, Length, InputRequired,EqualTo, NumberRange
 from neo4j.v1 import GraphDatabase, basic_auth
 
 """ Class SignupForm : class test to test the module flask_wtf
@@ -254,4 +254,5 @@ class CountryForm(FlaskForm):
 
     countrya = SelectField(u'Country départ',choices=choices)
     countryb = SelectField(u'Country arrivée',choices=choices)
-    value = IntegerField('Profondeur de recherche', default = 1)
+    value = IntegerField('Profondeur de recherche', 
+            default = 1, validators=[Required(), NumberRange(1, 99, "Must be between 1 and 99")])

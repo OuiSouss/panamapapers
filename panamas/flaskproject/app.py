@@ -288,6 +288,7 @@ def form_country():
         countrya = form.countrya.data
         countryb = form.countryb.data
         value = form.value.data
+        if form.validate_on_submit():
         result = session.run("match (n:Country {country:\""+countrya+"\"}), (m:Country {country:\""+countryb+"\"}) match p = shortestPath((n)-[*.."+str(value)+"]-(m)) return nodes(p) , relationships(p)")
         data = {}
         list_l = []
