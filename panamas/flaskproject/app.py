@@ -32,7 +32,7 @@ from neo4j.v1 import GraphDatabase, basic_auth
 from flask_bootstrap import Bootstrap
 from flask_appconfig import AppConfig
 from flask_debug import Debug
-from form import SignupForm, TestForm, CountryForm
+from form import TestForm, CountryForm
 
 frontend = Blueprint("app", __name__)
 """
@@ -222,7 +222,7 @@ def form():
             """
 
             if ((label_d == "Country" or label_f == "Country") and label_d != label_f):                
-                flash("Please, don't try to give a Country -> other or reverse situation, it will not work","danger")
+                flash("Please, don't try to match a Country with another type of node","danger")
                 return redirect(url_for('form'))
             if (label_d == "Country" and label_d == label_f):
                 return redirect(url_for('form_country'))
@@ -232,7 +232,7 @@ def form():
             f["check"] = check
             return form_submit(f)
         else:
-            flash("Not validate", "danger")
+            flash("Invalid", "danger")
             return render_template('select.html', form=form)
     return render_template('select.html', form=form)
 
@@ -273,10 +273,10 @@ def form_submit(form):
     data["nodes"] = node_l
     data["links"] = link_l
     if (len(node_l) == 0):
-        messages = "What you wanted was not find in our database. Maybe it does not exist"
+        messages = "Data not found. Please try another research"
         flash(messages, 'warning')
         return redirect(url_for("form"))
-    messages = "Yes, we found something for you"
+    messages = "We found something"
     flash(messages, 'success')
     return render_template("submit.html", data=data)
 
@@ -317,14 +317,14 @@ def form_country():
                 j += 1
                 
             if (len(node_l) == 0):
-                flash("Nothing found. Try to give a number to the deep higher or change countries selected","warning")
+                flash("Nothing found. Try to give an higher number to the deep search or change the countries selected","warning")
                 return redirect(url_for("form_country"))
             data["nodes"]= node_l
             data["links"] = list_l
-            flash("Yes, we found something for you. Take a look to shortest path","success")
+            flash("We found something. Take a look at the shortest path","success")
             return render_template("sub_graph_countries.html", data = data)
         else:
-            flash("Not validated", "danger")
+            flash("Invalid", "danger")
             return render_template('form_country.html', form=form)
     return render_template("form_country.html", form= form)
 
