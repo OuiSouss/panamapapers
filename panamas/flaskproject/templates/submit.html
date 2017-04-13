@@ -85,6 +85,7 @@
         .attr("marker-end", 'url(#arrowhead)')
         .style("stroke-width", 1)
         .style("stroke", "grey")
+        .style("pointer-events", "none");
 
 
    //--------------------------------------------
@@ -100,7 +101,8 @@
             .attr('stroke-opacity', 0)
             .attr("fill", "blue")
             .attr("stroke", "green")
-            .attr("id", function(d,i) {return "edgepath"+i});
+            .attr("id", function(d,i) {return "edgepath"+i})
+            .style("pointer-events", "none");
 
 
    //--------------------------------------------
