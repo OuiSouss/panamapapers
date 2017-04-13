@@ -289,40 +289,43 @@ def form_country():
         countryb = form.countryb.data
         value = form.value.data
         if form.validate_on_submit():
-        result = session.run("match (n:Country {country:\""+countrya+"\"}), (m:Country {country:\""+countryb+"\"}) match p = shortestPath((n)-[*.."+str(value)+"]-(m)) return nodes(p) , relationships(p)")
-        data = {}
-        list_l = []
-        node_l = []
-        links_l = []
-        noe_l = []
+            result = session.run("match (n:Country {country:\""+countrya+"\"}), (m:Country {country:\""+countryb+"\"}) match p = shortestPath((n)-[*.."+str(value)+"]-(m)) return nodes(p) , relationships(p)")
+            data = {}
+            list_l = []
+            node_l = []
+            links_l = []
+            noe_l = []
 
-        for r in result:
-            list_l = r[1]
-            node_l = r[0]
+            for r in result:
+                list_l = r[1]
+                node_l = r[0]
 
-        for i in list_l:
-            links_l.append(i)
-        for j in node_l:
-            noe_l.append(j)
-        print(links_l, noe_l)
-        list_l=[]
-        node_l = []
-        for i in noe_l:
-            node_l.append({"id": i["country"]})
-        for i in range(len(node_l) - 1):
-            list_l.append({"source" : noe_l[i]["country"], "target" : noe_l[i+1]["country"]})
-        j= 0
-        for i in links_l:
-            list_l[j]["value"] = i["cpt_int"]
-            j += 1
-            
-        if (len(node_l) == 0):
-            flash("Nothing found. Try to give a number to the deep higher or change countries selected","warning")
-            return redirect(url_for("form_country"))
-        data["nodes"]= node_l
-        data["links"] = list_l
-        flash("Yes, we found something for you. Take a look to shortest path","success")
-        return render_template("sub_graph_countries.html", data = data)
+            for i in list_l:
+                links_l.append(i)
+            for j in node_l:
+                noe_l.append(j)
+            print(links_l, noe_l)
+            list_l=[]
+            node_l = []
+            for i in noe_l:
+                node_l.append({"id": i["country"]})
+            for i in range(len(node_l) - 1):
+                list_l.append({"source" : noe_l[i]["country"], "target" : noe_l[i+1]["country"]})
+            j= 0
+            for i in links_l:
+                list_l[j]["value"] = i["cpt_int"]
+                j += 1
+                
+            if (len(node_l) == 0):
+                flash("Nothing found. Try to give a number to the deep higher or change countries selected","warning")
+                return redirect(url_for("form_country"))
+            data["nodes"]= node_l
+            data["links"] = list_l
+            flash("Yes, we found something for you. Take a look to shortest path","success")
+            return render_template("sub_graph_countries.html", data = data)
+        else:
+            flash("Not validated", "danger")
+            return render_template('form_country.html', form=form)
     return render_template("form_country.html", form= form)
 
 #session.close()
