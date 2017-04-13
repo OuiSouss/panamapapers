@@ -300,22 +300,27 @@ def form_country():
             node_l = r[0]
 
         for i in list_l:
-            links_l.append(i.values())
+            links_l.append(i)
         for j in node_l:
-            noe_l.append(j.values())
-        print (links_l[0][0], noe_l[0][0])
+            noe_l.append(j)
+        print(links_l, noe_l)
         list_l=[]
         node_l = []
-        for i in range(len(noe_l)):
-            node_l.append({"id": noe_l[i]})
-        print(node_l)
-        list_l.append({'source': r[0]["country"], 'target': r[2]["country"], 'value': r[1]})
-        node_l.append({"id": countrya})
-        node_l.append({"id": countryb})
+        for i in noe_l:
+            node_l.append({"id": i["country"]})
+        for i in range(len(node_l) - 1):
+            list_l.append({"source" : noe_l[i]["country"], "target" : noe_l[i+1]["country"]})
+        j= 0
+        for i in links_l:
+            list_l[j]["value"] = i["cpt_int"]
+            j += 1
+            
+        print(node_l, list_l)
+        
         data["nodes"]= node_l
         data["links"] = list_l
 
-        return render_template("graph_countries.html", data = data)
+        return render_template("sub_graph_countries.html", data = data)
     return render_template("form_country.html", form= form)
 
 #session.close()
