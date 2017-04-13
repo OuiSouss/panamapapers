@@ -208,10 +208,22 @@ def test_form():
     form = TestForm(request.form)
     f ={}
     if request.method == 'POST':
-        name = form.name
-        label_d = form.label_d
-        label_f = form.label_f
+        name = form.name.data
+        label_d = form.label_d.data
+        label_f = form.label_f.data
         if form.validate_on_submit():
+            """
+                formulaire validé donc on a vérifié si ce sont les bons champs pour envoyer une requête
+                si depart ou arrivée est country et qu'un autre champ est sélectionné
+                pas de requête possible
+                si deux country, formulaire dynamique et on rend une vue spécifique à des pays
+                si autres on rend une vue par rapport au champs name rempli
+            """
+            if ((label_d == "Country" or label_f == "Country") and label_d != label_f):                
+                flash("Not try to give a Country -> other or reverse situation, it will not work","danger")
+                return redirect(url_for('test_form'))
+            if (label_d == "Country" and label_d == label_f):
+                return redirect(url_for('form_country'))
             f["label_d"] = request.form["label_d"].encode("utf-8")
             f["name"] = request.form["name"].encode("utf-8")
             f["label_f"] = request.form["label_f"].encode("utf-8")
@@ -222,6 +234,8 @@ def test_form():
     return render_template('select.html', form=form)
 
 """
+    :param form: dictionnaire avec les champs du formulaire
+    :return: vue submit avec data les données nécessaire pour créer un graph d3 si des données on été trouvée
 """
 def form_submit(form):
     c = []
