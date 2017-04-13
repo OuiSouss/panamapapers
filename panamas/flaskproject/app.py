@@ -21,7 +21,7 @@
 # FAIT: check validation impossiblité de something->Country et l'inverse
 # FAIT: afficher sens des edges
 # FAIT: afficher le nom des edges (exemple : http://bl.ocks.org/jhb/5955887)
-# TODO: couleur en fonction des labels (officer, entity ...)
+# FAIT: couleur en fonction des labels (officer, entity ...)
 #en plus
 # TODO: profondeur de recherche
 # TODO: mettre les noms into les nodes
