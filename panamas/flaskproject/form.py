@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
-
+"""This module is used to create a from for our Flask application"""
 
 from flask_wtf import FlaskForm
 from wtforms.fields import *
 from wtforms.validators import Required, Email, DataRequired, Length, InputRequired
 from neo4j.v1 import GraphDatabase, basic_auth
 
+""" Class SignupForm : class test to test the module flask_wtf
+    :param FlaskForm
+"""
 class SignupForm(FlaskForm):
     name = StringField('name', validators=[DataRequired(),
                                            Length(max=20, message=(u'Please give a name shorter'))])
@@ -13,22 +16,10 @@ class SignupForm(FlaskForm):
 
     submit = SubmitField(u'Signup')
 
-"""class NeoForm(FlaskForm):
-    driver = GraphDatabase.driver("bolt://localhost", auth=basic_auth("neo4j", "neo"))
-    session = driver.session()
-    result = session.run("match (o:Officer) return distinct toLower(o.name) as name")
 
-    choices = []
-
-    for r in result:
-        choices.append((r["name"])
-    #print(choices)
-    
-    name = SelectField("name", choices)
-"""
 class TestForm(FlaskForm):
-	name = StringField('Name or part of name', validators=[Required(), DataRequired("Select a name please"),
-                                               Length(min=1, message=("Please give a name longer "))])
+	name = StringField('Name or part of name', validators=[DataRequired("Write something please"),
+                                               Length(min=1, message=("Please give a longer name "))])
 	label_d = SelectField(u'Label de départ',
                               choices=[('Intermediary','Intermediary'),
                                        ('Address','Address'),

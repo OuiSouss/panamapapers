@@ -197,7 +197,7 @@ def form_submit(form):
     if (len(node_l) == 0):
         messages = "What you wanted is not found in database. Maybe does not exist"
         flash(messages, 'warning')
-        return render_template("select.html", form=form,  messages=messages)
+        return render_template("submit.html", data=data)
     messages = "Yes, we find someting for you"
     flash(messages, 'success')
     return render_template("submit.html", data=data)
