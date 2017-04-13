@@ -1,7 +1,7 @@
 from neo4j.v1 import GraphDatabase, basic_auth
 import csv
 
-driver = GraphDatabase.driver("bolt://localhost", auth=basic_auth("neo4j", "neo"))
+driver = GraphDatabase.driver("bolt://localhost:7474/", auth=basic_auth("neo4j", "neo4"))
 session = driver.session()
 
 dict_type ={

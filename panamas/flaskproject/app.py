@@ -32,7 +32,7 @@ from neo4j.v1 import GraphDatabase, basic_auth
 from flask_bootstrap import Bootstrap
 from flask_appconfig import AppConfig
 from flask_debug import Debug
-from form import SignupForm, TestForm
+from form import SignupForm, TestForm, CountryForm
 
 frontend = Blueprint("app", __name__)
 """
@@ -220,7 +220,7 @@ def test_form():
                 si autres on rend une vue par rapport au champs name rempli
             """
             if ((label_d == "Country" or label_f == "Country") and label_d != label_f):                
-                flash("Not try to give a Country -> other or reverse situation, it will not work","danger")
+                flash("Please, don't try to give a Country -> other or reverse situation, it will not work","danger")
                 return redirect(url_for('test_form'))
             if (label_d == "Country" and label_d == label_f):
                 return redirect(url_for('form_country'))
@@ -256,12 +256,50 @@ def form_submit(form):
     data["nodes"] = node_l
     data["links"] = c
     if (len(node_l) == 0):
-        messages = "What you wanted is not found in database. Maybe does not exist"
+        messages = "What you wanted was not find in our database. Maybe it does not exist"
         flash(messages, 'warning')
         return render_template("submit.html", data=data)
-    messages = "Yes, we find someting for you"
+    messages = "Yes, we found something for you"
     flash(messages, 'success')
     return render_template("submit.html", data=data)
+
+@app.route('/form_country', methods = ['GET', 'POST'])
+def form_country():
+    form = CountryForm(request.form)
+    f = {}
+    if request.method == 'POST':
+        countrya = form.countrya.data
+        countryb = form.countryb.data
+        value = form.value.data
+        result = session.run("match (n:Country {country:\""+countrya+"\"}), (m:Country {country:\""+countryb+"\"}) match p = shortestPath((n)-[*.."+str(value)+"]-(m)) return nodes(p) , relationships(p)")
+        data = {}
+        list_l = []
+        node_l = []
+        links_l = []
+        noe_l = []
+
+        for r in result:
+            list_l = r[1]
+            node_l = r[0]
+
+        for i in list_l:
+            links_l.append(i.values())
+        for j in node_l:
+            noe_l.append(j.values())
+        print (links_l[0][0], noe_l[0][0])
+        list_l=[]
+        node_l = []
+        for i in range(len(noe_l)):
+            node_l.append({"id": noe_l[i]})
+        print(node_l)
+        list_l.append({'source': r[0]["country"], 'target': r[2]["country"], 'value': r[1]})
+        node_l.append({"id": countrya})
+        node_l.append({"id": countryb})
+        data["nodes"]= node_l
+        data["links"] = list_l
+
+        return render_template("graph_countries.html", data = data)
+    return render_template("form_country.html", form= form)
 
 #session.close()
 if __name__ == "__main__" :
