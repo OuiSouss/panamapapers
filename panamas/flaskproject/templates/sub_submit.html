@@ -33,7 +33,7 @@
    //------------------------------------------
    var simulation = d3.forceSimulation()
        .force("link", d3.forceLink().distance(linkLength).id(function(d) { return d.id;}))
-       .force("charge", d3.forceManyBody().strength(-17))
+       .force("charge", d3.forceManyBody().strength(-8000))
        .force("center", d3.forceCenter(width / 2, height / 2));
 
 
@@ -82,7 +82,6 @@
      .enter()
      .append("line")
         .attr("id", function(d,i){return "link "+i})
-        .attr("marker-end", 'url(#arrowhead)')
         .style("stroke-width", 1)
         .style("stroke", "grey")
         .style("pointer-events", "none");
@@ -191,21 +190,7 @@
    }
 
    function selectColor(d){
-     switch (d.label) {
-      case "Officer":
-         return "#cae1bd";
-      case "Entity":
-         return "#fbe591";
-      case "Intermediary":
-         return "#f9cbaa";
-      case "Address":
-         return "#fce5c0";
-      case "Country":
-         return "#d8e3e2";
-       default:
-          break;
-     }
-     return "#000000";
+     return " #A9C6DE";
    }
 
    function dragstarted(d) {

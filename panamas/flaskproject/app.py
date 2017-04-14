@@ -298,12 +298,10 @@ def form_country():
             for r in result:
                 list_l = r[1]
                 node_l = r[0]
-
             for i in list_l:
                 links_l.append(i)
             for j in node_l:
                 noe_l.append(j)
-            print(links_l, noe_l)
             list_l=[]
             node_l = []
             for i in noe_l:
@@ -312,18 +310,18 @@ def form_country():
                 list_l.append({"source" : noe_l[i]["country"], "target" : noe_l[i+1]["country"]})
             j= 0
             for i in links_l:
-                list_l[j]["value"] = i["cpt_int"]
+                list_l[j]["values"] = i["cpt_int"]
                 j += 1
-                
             if (len(node_l) == 0):
                 flash("Nothing found. Try to give a number to the deep higher or change countries selected","warning")
                 return redirect(url_for("form_country"))
             data["nodes"]= node_l
             data["links"] = list_l
-            flash("Yes, we found something for you. Take a look to shortest path","success")
-            return render_template("sub_graph_countries.html", data = data)
+            data["values"] = value
+            flash("We found something. Take a look at the shortest path","success")
+            return render_template("sub_submit.html", data = data)
         else:
-            flash("Not validated", "danger")
+            flash("Not validate", "danger")
             return render_template('form_country.html', form=form)
     return render_template("form_country.html", form= form)
 
