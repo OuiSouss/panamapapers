@@ -222,7 +222,7 @@ def form():
             """
 
             if ((label_d == "Country" or label_f == "Country") and label_d != label_f):                
-                flash("Please, don't try to match a Country with another type of node","danger")
+                flash("Please, don't try to give a Country -> other or reverse situation, it will not work","danger")
                 return redirect(url_for('form'))
             if (label_d == "Country" and label_d == label_f):
                 return redirect(url_for('form_country'))
@@ -232,7 +232,7 @@ def form():
             f["check"] = check
             return form_submit(f)
         else:
-            flash("Invalid", "danger")
+            flash("Not validate", "danger")
             return render_template('select.html', form=form)
     return render_template('select.html', form=form)
 
@@ -262,7 +262,6 @@ def form_submit(form):
             labels_r2.append(s)
         labels_r0 = labels_r0[1]
         labels_r2 = labels_r2[1]
-        print(labels_r0, labels_r2)
         link_l.append({'source' : r[0]["name"], 'target' : r[2]["name"], 'values' : r[1].type})
         if r[0]["name"] not in lis:
             lis.append(r[0]["name"])
@@ -273,10 +272,10 @@ def form_submit(form):
     data["nodes"] = node_l
     data["links"] = link_l
     if (len(node_l) == 0):
-        messages = "Data not found. Please try another research"
+        messages = "What you wanted was not find in our database. Maybe it does not exist"
         flash(messages, 'warning')
         return redirect(url_for("form"))
-    messages = "We found something"
+    messages = "Yes, we found something for you"
     flash(messages, 'success')
     return render_template("submit.html", data=data)
 
@@ -317,14 +316,14 @@ def form_country():
                 j += 1
                 
             if (len(node_l) == 0):
-                flash("Nothing found. Try to give an higher number to the deep search or change the countries selected","warning")
+                flash("Nothing found. Try to give a number to the deep higher or change countries selected","warning")
                 return redirect(url_for("form_country"))
             data["nodes"]= node_l
             data["links"] = list_l
-            flash("We found something. Take a look at the shortest path","success")
+            flash("Yes, we found something for you. Take a look to shortest path","success")
             return render_template("sub_graph_countries.html", data = data)
         else:
-            flash("Invalid", "danger")
+            flash("Not validated", "danger")
             return render_template('form_country.html', form=form)
     return render_template("form_country.html", form= form)
 
