@@ -262,7 +262,6 @@ def form_submit(form):
             labels_r2.append(s)
         labels_r0 = labels_r0[1]
         labels_r2 = labels_r2[1]
-        print(labels_r0, labels_r2)
         link_l.append({'source' : r[0]["name"], 'target' : r[2]["name"], 'values' : r[1].type})
         if r[0]["name"] not in lis:
             lis.append(r[0]["name"])
@@ -299,12 +298,10 @@ def form_country():
             for r in result:
                 list_l = r[1]
                 node_l = r[0]
-
             for i in list_l:
                 links_l.append(i)
             for j in node_l:
                 noe_l.append(j)
-            print(links_l, noe_l)
             list_l=[]
             node_l = []
             for i in noe_l:
@@ -313,16 +310,16 @@ def form_country():
                 list_l.append({"source" : noe_l[i]["country"], "target" : noe_l[i+1]["country"]})
             j= 0
             for i in links_l:
-                list_l[j]["value"] = i["cpt_int"]
+                list_l[j]["values"] = i["cpt_int"]
                 j += 1
-                
             if (len(node_l) == 0):
                 flash("Nothing found. Try to give an higher number to the deep search or change the countries selected","warning")
                 return redirect(url_for("form_country"))
             data["nodes"]= node_l
             data["links"] = list_l
+            data["values"] = value
             flash("We found something. Take a look at the shortest path","success")
-            return render_template("sub_graph_countries.html", data = data)
+            return render_template("sub_submit.html", data = data)
         else:
             flash("Invalid", "danger")
             return render_template('form_country.html', form=form)
